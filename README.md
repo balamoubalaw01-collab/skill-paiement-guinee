@@ -59,6 +59,15 @@ outils/             schéma SQL de référence (contraintes, transitions atomiqu
 6. Montant, devise et référence sont contrôlés avant de marquer payé.
 7. Honnêteté : jamais « testé » pour du code seulement écrit.
 
+## Paquets prêts à distribuer
+
+Le dossier [`dist/`](dist/LIRE-MOI-DIST.md) contient des versions prêtes à l'emploi :
+
+- [`dist/PAIEMENT-GUINEE-PACK.md`](dist/PAIEMENT-GUINEE-PACK.md) — tout le skill en un seul fichier, à téléverser dans un Projet ChatGPT.
+- [`dist/INSTRUCTIONS-CHATGPT.md`](dist/INSTRUCTIONS-CHATGPT.md) — version condensée sous 8 000 caractères, pour le champ *Instructions* d'un GPT personnalisé.
+- [`dist/skill-paiement-guinee.zip`](dist/skill-paiement-guinee.zip) — archive complète du skill.
+- [`dist/skill-paiement-guinee.bundle`](dist/skill-paiement-guinee.bundle) — miroir Git pour republier le dépôt sur un autre compte.
+
 ## Niveaux de confiance
 
 ✅ vérifié (exécuté / source SDK) · 🟡 indicatif (doc, non exécuté) · 📄 doc recopiée · ❓ non confirmé · **NON TROUVÉ** aucune source.
