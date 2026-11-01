@@ -1,5 +1,5 @@
 ---
-name: integrer-paiement-guinee
+name: skill-paiement-guinee
 description: Intègre de A à Z un paiement mobile money ou carte en Guinée (Orange Money Guinée, MTN MoMo Guinée, Wave Guinée, Ecobank / Visa) dans une appli existante — pay-in, remboursement, payout, carte — avec webhooks sécurisés, machine à états, tests et réconciliation. À utiliser pour encaisser en GNF, brancher un agrégateur guinéen (Paycard, CinetPay, Paynote) ou sécuriser une intégration de paiement existante.
 ---
 

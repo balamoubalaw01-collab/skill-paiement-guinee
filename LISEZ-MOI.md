@@ -38,11 +38,11 @@ Détail complet : `references/guinee/`. Journal des sources ouvertes : `referenc
 
 Ouvre ton projet avec l'IA et écris par exemple :
 
-> Utilise le skill integrer-paiement-guinee pour intégrer Orange Money Guinée dans mon appli de gestion des élèves. Le parent paie les frais de scolarité en GNF.
+> Utilise le skill paiement-guinee pour intégrer Orange Money Guinée dans mon appli de gestion des élèves. Le parent paie les frais de scolarité en GNF.
 
 ou
 
-> Utilise le skill integrer-paiement-guinee : je veux encaisser Orange Money, MTN et la carte Visa. Choisis l'agrégateur et dis-moi ce qui est confirmé.
+> Utilise le skill paiement-guinee : je veux encaisser Orange Money, MTN et la carte Visa. Choisis l'agrégateur et dis-moi ce qui est confirmé.
 
 ## Avant de commencer
 
