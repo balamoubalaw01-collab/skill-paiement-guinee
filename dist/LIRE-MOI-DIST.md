@@ -8,7 +8,13 @@ toute modification du pack.
 | `PAIEMENT-GUINEE-PACK.md` | 138 Ko | Document unique contenant **tous** les fichiers du skill, dans l'ordre de lecture. À déposer comme fichier de connaissances dans un Projet ChatGPT. |
 | `INSTRUCTIONS-CHATGPT.md` | 5,7 Ko | Version condensée (sous la limite de 8 000 caractères) à coller dans le champ **Instructions** d'un GPT personnalisé ou d'un Projet. |
 | `skill-paiement-guinee.zip` | 71 Ko | Archive complète du skill, sans `.git`. Pour import dans Claude, VS Code, Cursor, ou toute IA qui lit des fichiers. |
-| `skill-paiement-guinee.bundle` | 69 Ko | Miroir Git complet (historique inclus). Sert à republier le dépôt sur un autre compte GitHub sans perdre les commits. |
+| `skill-paiement-guinee.bundle` | 70 Ko | Miroir Git complet (historique inclus). Sert à republier le dépôt sur un autre compte GitHub sans perdre les commits. Fichier **généré localement**, volontairement exclu du dépôt (il se contiendrait lui-même). |
+
+Régénérer le miroir après chaque commit :
+
+```powershell
+git bundle create dist/skill-paiement-guinee.bundle --all
+```
 
 ## 1. Installer dans ChatGPT
 

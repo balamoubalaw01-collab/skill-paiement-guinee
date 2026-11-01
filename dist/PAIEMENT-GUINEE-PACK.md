@@ -1,9 +1,11 @@
-# Pack paiement Guinee - contenu complet
+# Pack paiement Guinee — contenu complet
 
-Document unique regroupant l'integralite du skill `paiement-guinee`
-pour import dans ChatGPT (Projet / GPT personnalise / fichier de connaissances).
+Document unique regroupant l'ensemble du skill `paiement-guinee` : integration
+d'Orange Money Guinee, MTN MoMo, Wave et Ecobank/Visa dans une application, en GNF.
 
-Depot source : https://github.com/balamoubalaw01-collab/skill-paiement-guinee
+- Depot source : https://github.com/balamoubalaw01-collab/skill-paiement-guinee
+- Chaque section ci-dessous correspond a un fichier du depot, dans l'ordre de lecture.
+- Les niveaux de confiance employes sont : VERIFIE, INDICATIF, NON TROUVE.
 
 ## Sommaire
 
@@ -35,25 +37,22 @@ Depot source : https://github.com/balamoubalaw01-collab/skill-paiement-guinee
 26. frameworks/flutter.md
 27. outils/README.md
 
----
 
+<!-- fichier 1 : SKILL.md -->
 
-<!-- ===== FICHIER 1 : SKILL.md ===== -->
-
-# [1] SKILL.md
+## [1] SKILL.md — Intégrer un paiement en Guinée
 
 ---
 name: skill-paiement-guinee
 description: Intègre de A à Z un paiement mobile money ou carte en Guinée (Orange Money Guinée, MTN MoMo Guinée, Wave Guinée, Ecobank / Visa) dans une appli existante — pay-in, remboursement, payout, carte — avec webhooks sécurisés, machine à états, tests et réconciliation. À utiliser pour encaisser en GNF, brancher un agrégateur guinéen (Paycard, CinetPay, Paynote) ou sécuriser une intégration de paiement existante.
 ---
 
-# Intégrer un paiement en Guinée
 
 Tu branches l'appli de l'utilisateur sur un moyen de paiement guinéen. Tu fais le travail de bout en bout : analyse, code, tests, rapport. L'utilisateur fournit ses clés et valide.
 
 Parle en français simple. Une ou deux phrases par étape, sans jargon inutile.
 
-## Niveaux de confiance (à respecter partout)
+### Niveaux de confiance (à respecter partout)
 
 Les fiches de ce skill marquent chaque information :
 
@@ -70,7 +69,7 @@ Règles :
 3. Si l'endpoint de statut lui-même est inconnu : **arrête-toi** et demande la doc ou le support de l'opérateur. Sans lui, aucune intégration n'est sûre.
 4. Si la version du SDK du projet diffère de celle testée, relance les scripts de `outils/` ou relis le code du SDK installé.
 
-## Les 7 règles d'or (jamais d'exception)
+### Les 7 règles d'or (jamais d'exception)
 
 1. La **clé secrète** reste sur le serveur : jamais dans l'appli mobile, le navigateur, Git ni les logs.
 2. Le **montant** est calculé par le serveur à partir de sa base, jamais reçu du client.
@@ -82,7 +81,7 @@ Règles :
 
 Si le code existant viole une de ces règles, dis-le clairement et corrige ce point.
 
-## Le paysage guinéen (ce qui existe vraiment)
+### Le paysage guinéen (ce qui existe vraiment)
 
 | Rail | Nature | Niveau | Fiche |
 | --- | --- | --- | --- |
@@ -97,9 +96,9 @@ Devise : **GNF**, montant **entier** (le franc guinéen n'a pas de sous-unité).
 
 **Choix par défaut** quand l'utilisateur n'a pas d'avis : un **agrégateur** qui couvre Orange Money + MTN + carte en une seule API (`references/guinee/agregateurs-gn.md`). Une intégration directe par opérateur = un contrat marchand et une intégration par rail.
 
-## Déroulé
+### Déroulé
 
-### 1. Comprendre le besoin
+#### 1. Comprendre le besoin
 
 Pose seulement les questions dont la réponse n'est pas dans le projet :
 
@@ -111,11 +110,11 @@ Pose seulement les questions dont la réponse n'est pas dans le projet :
 
 ⚠️ En Guinée, le blocage le plus fréquent n'est pas technique : **le compte marchand**. Orange Money exige un marchand enregistré et conforme KYA, ouvert dans une agence Orange locale. Sans ça, pas de production, même avec du code parfait.
 
-### 2. Analyser le projet → `references/adaptation-projet.md`
+#### 2. Analyser le projet → `references/adaptation-projet.md`
 
 Détecte langage, framework, base et ORM, migrations, hébergement, tâches de fond, authentification, conventions, paiement existant. Résume en quelques lignes. Ouvre ensuite le guide du framework (`frameworks/`). Respecte l'architecture existante, réutilise ce qui existe, ne reconstruis rien sans raison.
 
-### 3. Analyser l'opérateur
+#### 3. Analyser l'opérateur
 
 - Rail connu : lis la fiche dans `references/guinee/`.
 - Rail inconnu, ou doute sur une fiche : `references/detection-agregateur.md`. Remplis la fiche d'analyse avec une source pour chaque ligne ; « NON TROUVÉ » plutôt qu'une invention.
@@ -128,15 +127,15 @@ Détecte langage, framework, base et ORM, migrations, hébergement, tâches de f
   Rappelle-lui d'**enlever ses vraies clés** des exemples avant de coller. Une page collée compte comme doc officielle : note sa source (URL, date) dans le rapport.
 - Montre à l'utilisateur ce qui est confirmé, ce qui ne l'est pas, et quelles opérations sont réellement possibles.
 
-### 4. Architecture → `references/architecture.md`
+#### 4. Architecture → `references/architecture.md`
 
 Une interface commune (`createPayment`, `getPaymentStatus`, `verifyWebhook`, `refundPayment`, et selon les capacités `createPayout`…), un adaptateur par rail, un registre. Les opérations non prises en charge ou non confirmées **n'existent pas** dans l'adaptateur.
 
-### 5. Données et machine à états → `references/machine-etats.md` et `references/fiabilite-paiements.md`
+#### 5. Données et machine à états → `references/machine-etats.md` et `references/fiabilite-paiements.md`
 
 Statuts : `pending`, `processing`, `succeeded`, `failed`, `cancelled`, `expired`, `refunded`. Transitions autorisées en table, une seule fonction de transition atomique, anomalies dans une colonne séparée, journal `payment_events`, `webhook_events` pour les doublons, outbox pour les effets après commit.
 
-### 6. Code serveur
+#### 6. Code serveur
 
 - création du paiement (idempotente, montant lu en base, en GNF entier) ;
 - une route webhook par rail (corps brut → authentification → doublon ? → statut chez l'opérateur → transition) ;
@@ -146,15 +145,15 @@ Statuts : `pending`, `processing`, `succeeded`, `failed`, `cancelled`, `expired`
 - variables dans `.env.example` sans valeur, `.env` dans `.gitignore`, validation au démarrage ;
 - logs sans secret, téléphone masqué, délai maximal explicite sur chaque appel HTTP (les API mobile money guinéennes sont lentes : 30 s minimum, jamais d'appel sans timeout).
 
-### 7. Interface
+#### 7. Interface
 
 Selon le guide du framework (Flutter : `frameworks/flutter.md`). L'appli n'utilise qu'une clé publique si besoin, interroge **ton** serveur, affiche : en attente, réussi, échoué (réessayer = nouvelle tentative), délai dépassé, erreur réseau. Double clic bloqué. Montants affichés en `GNF` avec séparateur de milliers.
 
-### 8. Tests → `references/tests.md`
+#### 8. Tests → `references/tests.md`
 
 Niveau 1 (API simulée : réseau, délais, signatures, réponses inattendues), niveau 2 (vraie base : concurrence, désordre, doublons, remboursements), niveau 3 (sandbox avec les clés de test de l'utilisateur). Exécute les niveaux 1 et 2 toi-même et montre les résultats.
 
-### 9. Mise en production (checklist pour l'utilisateur)
+#### 9. Mise en production (checklist pour l'utilisateur)
 
 - [ ] compte marchand vérifié (KYA / KYC) chez l'opérateur ou l'agrégateur — sinon plafonds ou blocages ;
 - [ ] clés **live** sur le serveur de production ;
@@ -164,7 +163,7 @@ Niveau 1 (API simulée : réseau, délais, signatures, réponses inattendues), n
 - [ ] premier vrai paiement de petit montant (5 000 GNF par exemple) vérifié de bout en bout, puis remboursé si besoin ;
 - [ ] aucune clé secrète dans l'appli publiée ni dans l'historique Git (sinon : la régénérer).
 
-### 10. Rapport de validation honnête (obligatoire)
+#### 10. Rapport de validation honnête (obligatoire)
 
 Termine par ce rapport, en français simple :
 
@@ -197,7 +196,7 @@ Termine par ce rapport, en français simple :
 
 N'écris jamais « testé » pour quelque chose qui a seulement été écrit, et jamais « fonctionne en production » sans paiement réel confirmé par l'utilisateur.
 
-## Erreurs fréquentes
+### Erreurs fréquentes
 
 - Valider la commande dans le callback de l'appli ou sur l'URL de retour.
 - Mettre une clé secrète dans Flutter, React Native ou le front (même via `.env` embarqué ou `--dart-define`).
@@ -210,7 +209,7 @@ N'écris jamais « testé » pour quelque chose qui a seulement été écrit, et
 - **Déduire la disponibilité d'un rail depuis une page marketing.** « Wave est en Guinée » vu sur un post social ≠ Wave Checkout disponible pour un marchand guinéen. Tant que ce n'est pas écrit dans la doc opérateur, c'est ❓.
 - **Écrire `GNF` avec des décimales.** Le franc guinéen n'a pas de sous-unité : `amount: 50000`, pas `50000.00`.
 
-## Fichiers
+### Fichiers
 
 ```
 SKILL.md                        ce fichier
@@ -231,19 +230,17 @@ frameworks/                     express, nextjs, laravel, django, flutter
 outils/                         implémentations de référence (voir outils/README.md)
 ```
 
----
 
-<!-- ===== FICHIER 2 : LISEZ-MOI.md ===== -->
+<!-- fichier 2 : LISEZ-MOI.md -->
 
-# [2] LISEZ-MOI.md
+## [2] LISEZ-MOI.md — Skill « Intégrer un paiement en Guinée »
 
-# Skill « Intégrer un paiement en Guinée »
 
 Adaptation du skill *integrer-agregateur-paiement* d'Eric Dev au marché guinéen : **Orange Money Guinée, MTN MoMo Guinée, Wave Guinée, Ecobank / Visa**, et les agrégateurs qui couvrent le pays.
 
 Ce skill apprend à une IA à brancher une appli existante sur un moyen de paiement guinéen, de A à Z. L'IA fait l'intégration ; toi, tu fournis tes clés et tu testes.
 
-## Ce que l'IA fait avec ce skill
+### Ce que l'IA fait avec ce skill
 
 - Elle analyse ton projet (langage, framework, base, hébergement) et respecte ton code existant.
 - Elle lit la doc de l'opérateur et te dit clairement ce qui est confirmé et ce qui ne l'est pas. **Elle n'invente pas** : une information absente est marquée `NON TROUVÉ`, jamais devinée.
@@ -254,7 +251,7 @@ Ce skill apprend à une IA à brancher une appli existante sur un moyen de paiem
 - Elle écrit et lance des tests : erreurs réseau, délais dépassés, fausses signatures, paiements simultanés.
 - Elle termine par un **rapport honnête** : ce qui est fait, ce qui est testé, ce qui reste à tester avec tes vraies clés.
 
-## État des rails en Guinée (1er novembre 2026)
+### État des rails en Guinée (1er novembre 2026)
 
 | Rail | État | Ce que ça veut dire pour toi |
 | --- | --- | --- |
@@ -267,13 +264,13 @@ Ce skill apprend à une IA à brancher une appli existante sur un moyen de paiem
 
 Détail complet : `references/guinee/`. Journal des sources ouvertes : `references/verifications.md`.
 
-## Installer
+### Installer
 
 - **Claude Code** : copie le dossier `skill-paiement-guinee` dans `~/.claude/skills/` (tous tes projets) ou dans `.claude/skills/` à la racine de ton projet.
 - **Claude (web ou application)** : paramètres → Skills → importer le fichier `.zip`.
 - **Autre agent** (Cursor, Cline, GPT, etc.) : le skill est du Markdown pur. Colle `SKILL.md` comme instruction système, et laisse les fichiers de `references/` accessibles à l'agent.
 
-## Utiliser
+### Utiliser
 
 Ouvre ton projet avec l'IA et écris par exemple :
 
@@ -283,14 +280,14 @@ ou
 
 > Utilise le skill paiement-guinee : je veux encaisser Orange Money, MTN et la carte Visa. Choisis l'agrégateur et dis-moi ce qui est confirmé.
 
-## Avant de commencer
+### Avant de commencer
 
 - **Ouvre ton compte marchand.** En Guinée, c'est le vrai prérequis : Orange Money exige un marchand enregistré et conforme KYA, ouvert dans une agence locale. Le code ne remplace pas le contrat.
 - Récupère tes **clés de test** si l'opérateur en fournit. Orange n'a pas toujours de sandbox sur ce marché : prévois alors un premier paiement réel de **5 000 GNF**.
 - **Ne colle jamais ta clé secrète dans la conversation** : mets-la toi-même dans le `.env` du serveur.
 - Fais toujours un premier paiement réel de petit montant avant d'ouvrir à tes clients.
 
-## Ce que ce skill ne fera pas
+### Ce que ce skill ne fera pas
 
 - Il n'inventera pas une API qui n'existe pas, ni ne déclarera disponible un rail non confirmé.
 - Il ne mettra jamais une clé secrète dans une appli mobile ou un front.
@@ -302,19 +299,17 @@ Fourni gratuitement, sans garantie. Les API des opérateurs changent : relis tou
 
 Adaptation : structure, procédure en 10 étapes, 7 règles d'or et système de niveaux de confiance repris du skill d'origine **« Intégrer un agrégateur de paiement » — Eric Dev**. Les fiches guinéennes, le journal de vérifications et le cas d'usage scolaire ont été ajoutés.
 
----
 
-<!-- ===== FICHIER 3 : README.md ===== -->
+<!-- fichier 3 : README.md -->
 
-# [3] README.md
+## [3] README.md — skill-paiement-guinee
 
-# skill-paiement-guinee
 
 Skill pour agent IA : **intégrer un paiement mobile money ou carte en Guinée** dans une application existante — Orange Money Guinée, MTN MoMo Guinée, Wave Guinée, Ecobank / Visa, et les agrégateurs qui couvrent le pays.
 
 Adapté au marché guinéen (devise **GNF**) depuis le skill *« Intégrer un agrégateur de paiement »* d'Eric Dev.
 
-## Installation
+### Installation
 
 ```bash
 # Claude Code — pour tous les projets
@@ -328,13 +323,13 @@ git clone https://github.com/balamoubalaw01-collab/skill-paiement-guinee.git \
 
 Autre agent (Cursor, Cline, GPT, …) : le contenu est du **Markdown pur**. Charge `SKILL.md` comme instruction système et laisse `references/` accessible à l'agent.
 
-## Utilisation
+### Utilisation
 
 > Utilise le skill `paiement-guinee` pour intégrer Orange Money Guinée dans mon application de gestion des élèves. Le parent paie les frais de scolarité en GNF.
 
 > Utilise le skill `paiement-guinee` : je veux encaisser Orange Money, MTN et Visa. Choisis l'agrégateur et dis-moi ce qui est confirmé.
 
-## État des rails (vérifié le 1er novembre 2026)
+### État des rails (vérifié le 1er novembre 2026)
 
 | Rail | État | Fiche |
 | --- | --- | --- |
@@ -347,7 +342,7 @@ Autre agent (Cursor, Cline, GPT, …) : le contenu est du **Markdown pur**. Char
 
 Journal des sources réellement ouvertes : [references/verifications.md](references/verifications.md).
 
-## Structure
+### Structure
 
 ```
 SKILL.md            procédure en 10 étapes, 7 règles d'or, niveaux de confiance
@@ -359,7 +354,7 @@ frameworks/         express, nextjs, laravel, django, flutter
 outils/             schéma SQL de référence (contraintes, transitions atomiques)
 ```
 
-## Les 7 règles d'or
+### Les 7 règles d'or
 
 1. La clé secrète reste sur le serveur.
 2. Le montant vient de la base, jamais du client.
@@ -369,30 +364,37 @@ outils/             schéma SQL de référence (contraintes, transitions atomiqu
 6. Montant, devise et référence sont contrôlés avant de marquer payé.
 7. Honnêteté : jamais « testé » pour du code seulement écrit.
 
-## Niveaux de confiance
+### Paquets prêts à distribuer
+
+Le dossier [`dist/`](dist/LIRE-MOI-DIST.md) contient des versions prêtes à l'emploi :
+
+- [`dist/PAIEMENT-GUINEE-PACK.md`](dist/PAIEMENT-GUINEE-PACK.md) — tout le skill en un seul fichier, à téléverser dans un Projet ChatGPT.
+- [`dist/INSTRUCTIONS-CHATGPT.md`](dist/INSTRUCTIONS-CHATGPT.md) — version condensée sous 8 000 caractères, pour le champ *Instructions* d'un GPT personnalisé.
+- [`dist/skill-paiement-guinee.zip`](dist/skill-paiement-guinee.zip) — archive complète du skill.
+- [`dist/skill-paiement-guinee.bundle`](dist/skill-paiement-guinee.bundle) — miroir Git pour republier le dépôt sur un autre compte.
+
+### Niveaux de confiance
 
 ✅ vérifié (exécuté / source SDK) · 🟡 indicatif (doc, non exécuté) · 📄 doc recopiée · ❓ non confirmé · **NON TROUVÉ** aucune source.
 
 Une information `❓` ou `NON TROUVÉ` n'est jamais transformée en code de production. C'est la règle qui évite les intégrations fantômes.
 
-## Crédit
+### Crédit
 
 Structure, procédure en 10 étapes, 7 règles d'or et système de niveaux de confiance repris du skill **« Intégrer un agrégateur de paiement » — Eric Dev**. Fiches guinéennes, journal de vérifications, schéma SQL et cas d'usage scolaire ajoutés.
 
 Fourni gratuitement, sans garantie. Les API des opérateurs changent : relis toujours l'intégration avant la mise en production.
 
----
 
-<!-- ===== FICHIER 4 : references/guinee/orange-money-gn.md ===== -->
+<!-- fichier 4 : references/guinee/orange-money-gn.md -->
 
-# [4] references/guinee/orange-money-gn.md
+## [4] references/guinee/orange-money-gn.md — Orange Money Guinée — fiche d'intégration (pay-in)
 
-# Orange Money Guinée — fiche d'intégration (pay-in)
 
 Légende : ✅ vérifié · 🟡 indicatif (doc / API standard, non exécuté) · 📄 doc recopiée · ❓ non confirmé.
 Vérifié le **1er novembre 2026** — voir `../verifications.md`.
 
-## Ce qui est confirmé
+### Ce qui est confirmé
 
 - ✅ **Orange Money Web Payment est officiellement disponible en Guinée Conakry.** La liste des pays de la page produit inclut « Guinea Conakry » (avec Mali, Cameroun, Côte d'Ivoire, Sénégal, Madagascar, Botswana, Guinée Bissau, Sierra Leone, RD Congo, RCA, Liberia).
   Source : https://developer.orange.com/apis/om-webpay
@@ -405,7 +407,7 @@ Vérifié le **1er novembre 2026** — voir `../verifications.md`.
 - ✅ Le parcours se fait par **redirection** vers une page Orange (URL de paiement générée côté serveur), avec des URL de retour et de notification fournies par le marchand.
 - 📄 Les **frais** ne sont pas publiés sur le portail développeur : « speak to your local Orange operator ». À obtenir par écrit auprès d'Orange Guinée avant de fixer une marge.
 
-## Ce qui n'est pas confirmé ici (à lire dans la doc avant de coder)
+### Ce qui n'est pas confirmé ici (à lire dans la doc avant de coder)
 
 - ❓ Les **chemins exacts** des endpoints (`POST /webpayment`, `GET /webpayment/{order_id}/status` selon les versions), les noms de champs (`merchant_key`, `currency`, `reference`, `notif_url`, `return_url`, `cancel_url`, `lang`) et la forme de la réponse. **Ouvre la référence API de `om-webpay` et copie la section pay-in** ; ne code pas ces noms de mémoire.
 - ❓ La **signature / authentification des notifications** Orange. Si la doc ne la décrit pas clairement : applique l'**échec fermé** (règle d'or 3) — la notification ne sert que de signal, la décision vient de l'appel de statut.
@@ -414,7 +416,7 @@ Vérifié le **1er novembre 2026** — voir `../verifications.md`.
 - ❓ L'existence d'un **endpoint de remboursement** côté Guinée.
 - ❓ Un **sandbox**. Orange ne propose pas toujours d'environnement de test sur tous les pays ; demande-le à ton interlocuteur Orange Guinée. S'il n'y en a pas : la première intégration se fait avec un vrai paiement de **5 000 GNF**.
 
-## Parcours recommandé
+### Parcours recommandé
 
 **Page de paiement Orange** (parcours 1) — pas de gestion de PIN côté appli, pas de secret dans le mobile :
 
@@ -426,7 +428,7 @@ Vérifié le **1er novembre 2026** — voir `../verifications.md`.
 
 Le parcours « paiement direct » (le client saisit son numéro dans ton appli, Orange envoie une demande sur son téléphone) existe aussi côté API Orange : 🟡 à confirmer pour la Guinée avant de le proposer.
 
-## Webhook (route serveur)
+### Webhook (route serveur)
 
 ```text
 POST /webhooks/orange-money
@@ -441,7 +443,7 @@ POST /webhooks/orange-money
 
 Le webhook Orange peut arriver **avant** le retour du client, ou jamais (client qui ferme l'onglet). Le **rattrapage** (toutes les 2–5 min sur les `pending`) est donc obligatoire, pas optionnel.
 
-## Correspondance des statuts
+### Correspondance des statuts
 
 À remplir **après** lecture de la doc, dans une seule constante commentée :
 
@@ -458,7 +460,7 @@ const STATUTS_ORANGE = {
 
 Tant que cette table n'est pas confirmée, tout statut inconnu doit tomber dans `inconnu` et **ne pas** faire échouer la commande, et **ne pas** la marquer payée.
 
-## Opérations prises en charge
+### Opérations prises en charge
 
 | Opération | Niveau | Détail |
 | --- | --- | --- |
@@ -470,30 +472,28 @@ Tant que cette table n'est pas confirmée, tout statut inconnu doit tomber dans 
 | Payout / versement | ❓ | ne pas implémenter sans doc |
 | Carte | ❌ | hors périmètre Orange Money |
 
-## Compte marchand (le vrai prérequis)
+### Compte marchand (le vrai prérequis)
 
 - Souscription « Paiement Marchand » Orange Guinée : https://orange-guinee.com/fr/formulaire-de-souscription-au-paiement-marchand-
 - Candidature API développeur : https://developer.orange.com/products/payment-financial-services/apply-orange-money/
 - Pièces à prévoir côté marchand : registre de commerce, NIF, coordonnées bancaires, pièce d'identité du représentant. 🟡 (à confirmer avec l'agence)
 
-## Cas `gestion_Eleve`
+### Cas `gestion_Eleve`
 
 Les frais de scolarité sont un cas d'usage explicitement listé par Orange Money. Utilise la **référence de paiement = numéro d'inscription + échéance** (`INS-2026-0147-T1`), jamais le nom de l'élève seul : deux élèves peuvent porter le même nom, et le rapprochement manuel qui suit doit être sans ambiguïté.
 
----
 
-<!-- ===== FICHIER 5 : references/guinee/mtn-momo-gn.md ===== -->
+<!-- fichier 5 : references/guinee/mtn-momo-gn.md -->
 
-# [5] references/guinee/mtn-momo-gn.md
+## [5] references/guinee/mtn-momo-gn.md — MTN MoMo Guinée — fiche d'intégration (pay-in)
 
-# MTN MoMo Guinée — fiche d'intégration (pay-in)
 
 Légende : ✅ vérifié · 🟡 indicatif · 📄 doc recopiée · ❓ non confirmé.
 Vérifié le **1er novembre 2026** — voir `../verifications.md`.
 
 > ⚠️ **Point bloquant à lever avant tout code : la disponibilité de MTN MoMo en Guinée n'est pas confirmée.** Le portail développeur ne rend sa liste de pays qu'en JavaScript, et je n'ai pas pu la lire. Ne l'annonce pas comme disponible : demande la confirmation au support MTN MoMo (ou au responsable MoMo Guinée), et note-la dans `../verifications.md` avec la date.
 
-## Ce qui est confirmé (sur l'API, pas sur la Guinée)
+### Ce qui est confirmé (sur l'API, pas sur la Guinée)
 
 - ✅ Le produit existe : **MTN MoMo Open API**, portail https://momodeveloper.mtn.com/
 - ✅ Quatre produits souscriptibles séparément :
@@ -508,14 +508,14 @@ Vérifié le **1er novembre 2026** — voir `../verifications.md`.
 - ✅ Les notifications (callback) sont configurables par abonnement, avec une URL HTTPS.
 - ✅ Devises supportées côté API : **EUR, XOF, XAF, GHS, UGX, RWF, ZAR, USD, ZMW, XCD** — voir le ❓ ci-dessous.
 
-## Ce qui n'est pas confirmé
+### Ce qui n'est pas confirmé
 
 - ❓ **La Guinée fait-elle partie des marchés MoMo couverts par l'Open API ?** Le franc guinéen (**GNF**) n'apparaît pas dans la liste des devises ci-dessus. C'est un signal fort : soit la Guinée n'est pas couverte, soit elle est couverte avec une devise non listée. **À faire confirmer par MTN avant d'écrire une ligne de code.**
 - ❓ Les chemins exacts (`/collection/v1_0/requesttopay`, `/collection/v1_0/requesttopay/{referenceId}`), les en-têtes (`X-Reference-Id`, `X-Target-Environment`, `Ocp-Apim-Subscription-Key`, jeton OAuth `Bearer`), la forme du corps (`amount`, `currency`, `externalId`, `payer.partyIdType`, `payer.partyId`). Ces noms sont 🟡 standards MoMo mais **non vérifiés ici** : lis la référence API du produit « Collection ».
 - ❓ La liste complète des statuts (`PENDING`, `SUCCESSFUL`, `FAILED`) et le sens de chacun — notamment si `PENDING` peut rester définitivement bloqué.
 - ❓ L'existence d'un remboursement (produit distinct ?) côté Guinée.
 
-## Si la Guinée est confirmée : parcours recommandé
+### Si la Guinée est confirmée : parcours recommandé
 
 **Produit « Collection »** (API, pas le widget), pour garder le contrôle côté serveur :
 
@@ -528,7 +528,7 @@ Vérifié le **1er novembre 2026** — voir `../verifications.md`.
 
 Le **Collection Widget** est plus rapide à intégrer (pas de gestion de statut côté serveur à écrire) mais il te lie à l'UI MTN et complique l'alignement avec la charte du projet.
 
-## Pièges spécifiques MoMo
+### Pièges spécifiques MoMo
 
 - `X-Reference-Id` doit être un **UUID v4 valide** ; réutiliser un UUID déjà utilisé renvoie une erreur, ce qui est en fait une **protection contre les doublons** — garde-le en base et réutilise-le pour un retry réseau, jamais pour un nouveau paiement.
 - `partyIdType` vaut `MSISDN` pour un client ; le numéro doit être au format `224XXXXXXXXX` (indicatif Guinée **224**, sans `+`, sans espaces). 🟡
@@ -560,7 +560,7 @@ await fetch(`${MOMO_BASE}/collection/v1_0/requesttopay`, {
 });
 ```
 
-## Décision
+### Décision
 
 | Scénario | Action |
 | --- | --- |
@@ -568,13 +568,11 @@ await fetch(`${MOMO_BASE}/collection/v1_0/requesttopay`, {
 | MTN ne couvre pas la Guinée (ou pas en GNF) | **ne pas intégrer** ; couvrir MTN via un agrégateur (`agregateurs-gn.md`) |
 | Pas de réponse du support | traiter comme ❓ : ne pas annoncer MTN à l'utilisateur comme disponible |
 
----
 
-<!-- ===== FICHIER 6 : references/guinee/wave-gn.md ===== -->
+<!-- fichier 6 : references/guinee/wave-gn.md -->
 
-# [6] references/guinee/wave-gn.md
+## [6] references/guinee/wave-gn.md — Wave Guinée — fiche d'intégration
 
-# Wave Guinée — fiche d'intégration
 
 Légende : ✅ vérifié · 🟡 indicatif · 📄 doc recopiée · ❓ non confirmé · **NON TROUVÉ** aucune source.
 Vérifié le **1er novembre 2026** — voir `../verifications.md`.
@@ -583,14 +581,14 @@ Vérifié le **1er novembre 2026** — voir `../verifications.md`.
 > 1. **Wave en Guinée** — présence grand public rapportée par des sources non officielles seulement.
 > 2. **Wave Checkout API** — l'API existe officiellement, mais **sa documentation publique n'a pas pu être ouverte**.
 
-## Ce qui est confirmé
+### Ce qui est confirmé
 
 - ✅ **Wave propose une API Checkout pour les marchands.** La page business annonce : « Increase sales on your website… Wave's best-in-market APIs », avec une API de paiement en ligne, les **transferts en masse** (frais expéditeur 1 %), l'appli business et les encaissements.
   Source : https://www.wave.com/en/business/
 - ✅ La page grand public (https://www.wave.com/fr/) ne mentionne **aucune API** : le parcours marchand passe par la page business.
 - ✅ Wave communique « 1 M+ d'utilisateurs actifs de l'API ». 🟡 (chiffre marketing, non audité)
 
-## Ce qui n'est pas confirmé
+### Ce qui n'est pas confirmé
 
 - **NON TROUVÉ — la documentation technique de l'API Wave.** Tentatives le 01/11/2026 :
   - `https://docs.wave.com/` → **404** « Sorry, that page wasn't found »
@@ -600,7 +598,7 @@ Vérifié le **1er novembre 2026** — voir `../verifications.md`.
 - ❓ **La disponibilité de Wave en Guinée.** Les listes publiques anciennes (mi-2025) citent Sénégal, Côte d'Ivoire, Ouganda, Gambie, Sierra Leone, Mali — **la Guinée n'y figure pas**. Un post social (~7 mois) annonce l'arrivée de Wave à Conakry, ce qui est une **piste, pas une source**. À faire confirmer par Wave (support marchand) avant de promettre ce rail à l'utilisateur.
 - ❓ Le **mode de collecte** en Guinée : transfert P2P grand public, ou vrai compte marchand avec Checkout ? Les deux n'ont pas les mêmes implications (pas de webhook fiable dans le premier cas).
 
-## Comment débloquer (dans cet ordre)
+### Comment débloquer (dans cet ordre)
 
 1. **Demander l'accès à la doc API au support Wave** (canal marchand) : ils fournissent un accès documenté + des clés sandbox aux marchands inscrits. C'est la voie normale, pas un contournement.
 2. **Demander en même temps la confirmation de la couverture Guinée** pour les comptes marchands, avec la devise **GNF**.
@@ -608,7 +606,7 @@ Vérifié le **1er novembre 2026** — voir `../verifications.md`.
 
 Si l'utilisateur obtient la doc : elle compte comme doc officielle. Note l'URL et la date dans `../verifications.md` et repasse les lignes 🟡 en ✅ après un test sandbox.
 
-## Ce qu'on peut préparer sans la doc
+### Ce qu'on peut préparer sans la doc
 
 - la **place du rail dans l'interface commune** (`../architecture.md`) : un adaptateur `WaveAdapter` qui lève `NotConfiguredError` tant que les clés manquent ;
 - la **référence de paiement** (numéro de commande / d'échéance) qui servira d'`idempotency key` quel que soit le format final ;
@@ -616,7 +614,7 @@ Si l'utilisateur obtient la doc : elle compte comme doc officielle. Note l'URL e
 
 On **ne** prépare pas : les noms d'endpoints « probables », un faux format de signature, ou une table de statuts inventée.
 
-## Tableau de décision
+### Tableau de décision
 
 | Situation | Action |
 | --- | --- |
@@ -624,20 +622,18 @@ On **ne** prépare pas : les noms d'endpoints « probables », un faux format de
 | Guinée non couverte | retirer Wave du périmètre ; le dire clairement à l'utilisateur |
 | Wave disponible seulement en P2P grand public | ❌ ne pas l'utiliser pour encaisser : pas de notification marchande fiable, rapprochement manuel obligatoire |
 
----
 
-<!-- ===== FICHIER 7 : references/guinee/ecobank-visa-gn.md ===== -->
+<!-- fichier 7 : references/guinee/ecobank-visa-gn.md -->
 
-# [7] references/guinee/ecobank-visa-gn.md
+## [7] references/guinee/ecobank-visa-gn.md — Ecobank Guinée / Visa — fiche d'intégration (carte)
 
-# Ecobank Guinée / Visa — fiche d'intégration (carte)
 
 Légende : ✅ vérifié · 🟡 indicatif · 📄 doc recopiée · ❓ non confirmé · **NON TROUVÉ** aucune source.
 Vérifié le **1er novembre 2026** — voir `../verifications.md`.
 
 > ⚠️ **Conclusion de la recherche : il n'existe pas de documentation publique d'une passerelle marchande self-service pour Ecobank Guinée.** Un encaissement Visa en Guinée passe en pratique par un **PSP / agrégateur** (`agregateurs-gn.md`), pas par une intégration directe avec la banque.
 
-## Ce qui est confirmé
+### Ce qui est confirmé
 
 - ✅ Ecobank est présent en **Guinée Conakry** (site pays : https://ecobank.com/gn/), avec offres entreprises et particuliers.
 - ✅ **3-D Secure** est en place pour les porteurs de carte Ecobank : le paiement en ligne déclenche une validation supplémentaire (code envoyé au client). C'est ce qui rend l'acceptation carte possible sans transfert de responsabilité.
@@ -645,7 +641,7 @@ Vérifié le **1er novembre 2026** — voir `../verifications.md`.
 - ✅ Ecobank propose l'**acceptation de paiements** côté commerçant (POS « cashless », Ecobank Mobile, Internet Banking) et un **programme fintech** pour partenaires.
   Source : même page
 
-## Ce qui n'est pas confirmé
+### Ce qui n'est pas confirmé
 
 - **NON TROUVÉ — une API marchande publique** (checkout, tokenisation, endpoints, webhooks) pour Ecobank Guinée. La page « Payments and collections » est une page marketing : elle décrit une offre commerciale, pas une spécification technique.
 - ❓ Le **canal d'intégration réel** : passerelle carte régionale du groupe Ecobank ? partenaire acquéreur ? mise en relation manuelle par l'agence ? — à demander à l'agence Ecobank Guinée, service entreprises.
@@ -653,45 +649,43 @@ Vérifié le **1er novembre 2026** — voir `../verifications.md`.
 - ❓ Le support de **Visa** spécifiquement en e-commerce international (une carte Visa étrangère peut-elle payer un marchand guinéen ?).
 - ❓ L'existence d'un **sandbox**.
 
-## Comment encaisser la carte en pratique
+### Comment encaisser la carte en pratique
 
 Deux chemins réalistes, dans cet ordre :
 
-### A. Via un agrégateur qui couvre la carte en Guinée (recommandé)
+#### A. Via un agrégateur qui couvre la carte en Guinée (recommandé)
 
 L'agrégateur expose une **page de paiement hébergée** ou un champ carte, et prend en charge le 3-D Secure, la tokenisation et la conformité PCI. Côté code : rien de spécifique à Ecobank, seulement l'adaptateur de l'agrégateur. Voir `agregateurs-gn.md`.
 
 Avantage : pas de contrat acquéreur, pas de PCI-DSS à porter, un seul webhook pour tous les rails.
 Limite : frais cumulés (agrégateur + réseau), et dépendance à la couverture réelle de la Guinée par l'agrégateur — à vérifier rail par rail.
 
-### B. Contrat acquéreur direct avec Ecobank Guinée
+#### B. Contrat acquéreur direct avec Ecobank Guinée
 
 Si le volume le justifie : demander à l'agence un contrat « acceptation e-commerce », l'accès à la passerelle et la documentation d'intégration. C'est un projet commercial de plusieurs semaines, pas une tâche de code.
 
-## Ce qu'on ne fait jamais
+### Ce qu'on ne fait jamais
 
 - **Ne jamais manipuler un numéro de carte complet** dans le code du projet : pas de champ carte maison, pas de CVV stocké, pas de token maison. Si le projet veut un formulaire carte intégré, il faut une bibliothèque du PSP (iframe / champs hébergés) et un périmètre **PCI-DSS SAQ A**.
 - Ne jamais considérer un `3-D Secure` réussi comme une preuve de capture : la capture se confirme par l'API du PSP (règle d'or 3).
 - Ne jamais écrire « paiement par carte Visa » dans l'interface si aucun contrat d'acceptation n'est signé.
 
-## Interface : ce que le client voit
+### Interface : ce que le client voit
 
 - Carte refusée ≠ erreur technique : afficher « paiement refusé, essayez une autre carte » et laisser réessayer (nouvelle tentative, pas rejeu du même paiement).
 - 3-D Secure abandonné par le client → statut `failed` (ou `cancelled` si c'est le client qui annule explicitement), jamais `succeeded`.
 - Délai dépassé pendant le 3-D Secure → `processing`, et le rattrapage tranche.
 
----
 
-<!-- ===== FICHIER 8 : references/guinee/prink.md ===== -->
+<!-- fichier 8 : references/guinee/prink.md -->
 
-# [8] references/guinee/prink.md
+## [8] references/guinee/prink.md — « Prink » — NON TROUVÉ
 
-# « Prink » — NON TROUVÉ
 
 Légende : ✅ vérifié · 🟡 indicatif · **NON TROUVÉ** aucune source pertinente.
 Recherche du **1er novembre 2026** — voir `../verifications.md`.
 
-## Résultat de la recherche
+### Résultat de la recherche
 
 **NON TROUVÉ.** Deux recherches (français et anglais) sur « Prink paiement Guinée », « Prink mobile money », « Prink Africa payment » n'ont renvoyé **aucun service de paiement guinéen, aucune API, aucun opérateur, aucun agrégateur** portant ce nom.
 
@@ -704,13 +698,13 @@ Ce qui existe sous des noms proches, et qui **n'est pas** un moyen de paiement :
 
 Rien ne relie « Prink » à un rail de paiement, à un agrégateur, ni à la Guinée.
 
-## Ce que la règle du pack impose
+### Ce que la règle du pack impose
 
 `../detection-agregateur.md`, règle absolue : « chaque information vient d'une source que tu as ouverte. Si tu ne la trouves pas, écris NON TROUVÉ […] Ne complète jamais un trou avec ce qui *devrait* marcher, ni avec ta mémoire. »
 
 Donc : **on n'intègre pas Prink**, on ne crée pas d'adaptateur, on ne l'annonce pas dans l'interface, et on ne l'inclut pas dans les frais ou le comparatif.
 
-## Si l'utilisateur y tient
+### Si l'utilisateur y tient
 
 Le nom vient peut-être de l'oral, d'une faute de frappe, ou d'un acteur local non référencé sur le web. Trois questions à poser, une seule fois :
 
@@ -720,20 +714,18 @@ Le nom vient peut-être de l'oral, d'une faute de frappe, ou d'un acteur local n
 
 Avec un lien, on remplit la grille de `../detection-agregateur.md` normalement. Sans lien, on reste à **NON TROUVÉ** et on travaille avec les rails confirmés (Orange Money Guinée en premier).
 
----
 
-<!-- ===== FICHIER 9 : references/guinee/agregateurs-gn.md ===== -->
+<!-- fichier 9 : references/guinee/agregateurs-gn.md -->
 
-# [9] references/guinee/agregateurs-gn.md
+## [9] references/guinee/agregateurs-gn.md — Agrégateurs et PSP couvrant la Guinée
 
-# Agrégateurs et PSP couvrant la Guinée
 
 Légende : ✅ vérifié (doc ou API ouverte) · 🟡 indicatif · 📄 doc recopiée · ❓ non confirmé · **NON TROUVÉ**.
 Relevé du **1er novembre 2026** — voir `../verifications.md`.
 
 > ⚠️ Aucun de ces acteurs n'a été vérifié au niveau de l'API dans cette recherche : ce sont des **pistes classées**, pas des fiches d'intégration. Pour en retenir un, ouvre sa doc et remplis `../detection-agregateur.md` ligne par ligne. Tant que ce n'est pas fait, tout est 🟡.
 
-## Pourquoi un agrégateur plutôt qu'une intégration directe
+### Pourquoi un agrégateur plutôt qu'une intégration directe
 
 | | Intégration directe par opérateur | Agrégateur |
 | --- | --- | --- |
@@ -746,44 +738,44 @@ Relevé du **1er novembre 2026** — voir `../verifications.md`.
 
 Pour un projet qui doit encaisser Orange Money **et** MTN **et** la carte, l'agrégateur est le choix par défaut. Pour Orange Money seul, l'intégration directe est plus rentable.
 
-## Acteurs identifiés
+### Acteurs identifiés
 
-### Paycard (Guinée) — 🟡
+#### Paycard (Guinée) — 🟡
 
 - Paiement marchand par **USSD `*717#`**, lancé en **novembre 2024** selon la presse guinéenne (guineematin.com).
 - Positionnement local, cas d'usage orienté commerces et paiement du quotidien.
 - ❓ **Aucune documentation API ouverte** dans cette recherche : rien sur un checkout web, des webhooks ou un sandbox.
 - À vérifier en premier : existe-t-il un **canal e-commerce** (pas seulement USSD) ?
 
-### CinetPay — 🟡
+#### CinetPay — 🟡
 
 - Agrégateur panafricain historique (Côte d'Ivoire, Sénégal, Cameroun, Mali…), API de collecte documentée, page de paiement hébergée, webhooks signés.
 - ❓ **Couverture Guinée et devise GNF non vérifiées** ici : la liste de pays doit être lue sur leur doc, rail par rail.
 - Piste la plus crédible pour un projet Laravel/Express francophone : écosystème francophone, doc en français.
 
-### Paynote — 🟡
+#### Paynote — 🟡
 
 - Agrégateur orienté Afrique de l'Ouest, API de collecte et payout.
 - ❓ Couverture Guinée, devises, frais : non vérifiés.
 
-### Intégrateurs locaux (Fallcon Tech, tigsi sarl) — 🟡
+#### Intégrateurs locaux (Fallcon Tech, tigsi sarl) — 🟡
 
 - Sociétés guinéennes citées comme intégrateurs de solutions de paiement.
 - Intérêt : elles connaissent les contraintes locales (KYA, agences, réseau). Utilité : **mise en relation** avec les opérateurs, pas forcément API self-service.
 - ❓ Aucune doc technique publique trouvée.
 
-### Coris Money (Coris Bank International Guinée) — 🟡
+#### Coris Money (Coris Bank International Guinée) — 🟡
 
 - Service de transfert lancé en **février 2026** selon la presse.
 - Nouveau sur le marché : pas d'API marchand documentée publiquement à ce jour. ❓
 
-## Frais et ordres de grandeur
+### Frais et ordres de grandeur
 
 - Commission de collecte mobile money en Guinée : ordre de **2 à 4 %** selon l'opérateur et le volume. 🟡 (relevé de presse / comparatifs, non contractuel)
 - **Ne fixe jamais une marge commerciale sur cet ordre de grandeur** : demande le barème écrit à l'opérateur ou à l'agrégateur, il dépend du volume, du type de marchand et du pays. Orange indique explicitement « speak to your local Orange operator ».
 - Devise : **GNF**, montant entier.
 
-## Grille de sélection (à remplir avant de choisir)
+### Grille de sélection (à remplir avant de choisir)
 
 | Critère | Pourquoi ça compte | Paycard | CinetPay | Paynote | Direct Orange |
 | --- | --- | --- | --- | --- | --- |
@@ -802,7 +794,7 @@ Pour un projet qui doit encaisser Orange Money **et** MTN **et** la carte, l'agr
 
 Remplis une ligne = une source ouverte. Une case qui reste `?` après recherche devient **NON TROUVÉ**, jamais une supposition.
 
-## Rappel : ce que l'agrégateur ne change pas
+### Rappel : ce que l'agrégateur ne change pas
 
 Les 7 règles d'or restent identiques. Un agrégateur ne dispense pas de :
 
@@ -811,17 +803,15 @@ Les 7 règles d'or restent identiques. Un agrégateur ne dispense pas de :
 - une machine à états atomique en base ;
 - la réconciliation quotidienne (l'agrégateur, lui, a toujours ses propres chiffres).
 
----
 
-<!-- ===== FICHIER 10 : references/guinee/cas-usage-gestion-eleve.md ===== -->
+<!-- fichier 10 : references/guinee/cas-usage-gestion-eleve.md -->
 
-# [10] references/guinee/cas-usage-gestion-eleve.md
+## [10] references/guinee/cas-usage-gestion-eleve.md — Cas d'usage : frais de scolarité dans `gestion_Eleve`
 
-# Cas d'usage : frais de scolarité dans `gestion_Eleve`
 
 Ce que le projet est aujourd'hui, ce qu'il faut ajouter pour encaisser, et le modèle de données qui va avec.
 
-## 1. État réel du projet (constaté le 01/11/2026)
+### 1. État réel du projet (constaté le 01/11/2026)
 
 | Élément | Constat |
 | --- | --- |
@@ -836,7 +826,7 @@ Ce que le projet est aujourd'hui, ce qu'il faut ajouter pour encaisser, et le mo
 
 C'est le point n°1 du rapport d'intégration : *« le projet n'a pas de serveur HTTP ; le webhook ne peut pas être reçu en l'état »*.
 
-## 2. Trois options, du moins cher au plus lourd
+### 2. Trois options, du moins cher au plus lourd
 
 | Option | Ce qu'on ajoute | Pour qui | Effort |
 | --- | --- | --- | --- |
@@ -848,7 +838,7 @@ Recommandation : **A** pour valider le parcours avec un vrai paiement, **B ou C*
 
 Si l'utilisateur choisit C, ouvre `frameworks/laravel.md` ou `frameworks/express.md`. Pour A et B, la logique est la même que dans `frameworks/express.md` (routes, corps brut, machine à états) — seul le langage change.
 
-## 3. Modèle de données
+### 3. Modèle de données
 
 ```sql
 -- L'élève et son inscription existent déjà ou sont à créer.
@@ -895,7 +885,7 @@ CREATE UNIQUE INDEX paiement_echeance_reussi
 
 La deuxième contrainte est la plus importante du projet : elle rend le **double encaissement impossible au niveau base**, même si un parent paie deux fois et que les deux webhooks arrivent en parallèle.
 
-## 4. Référence de paiement
+### 4. Référence de paiement
 
 Format stable, lisible au téléphone, unique :
 
@@ -907,7 +897,7 @@ INS-2026-0147-T1
 - **Jamais** le nom de l'élève seul : deux homonymes = rapprochement impossible.
 - La référence est envoyée à l'opérateur (`reference` / `externalId` / `merchant_key` selon le rail) **et** affichée au parent, pour qu'il puisse la citer en cas de litige.
 
-## 5. Montants en GNF
+### 5. Montants en GNF
 
 - Entier, sans décimale : `montant_gnf BIGINT`, jamais `DECIMAL` avec des centimes.
 - Affichage : `1 500 000 GNF` (espace fine insécable comme séparateur de milliers) — pas `1.500.000` qui se lit mal, pas `1,5M`.
@@ -919,7 +909,7 @@ String affichage = String.format("%,d GNF", montantGnf).replace(',', '\u202F');
 // 1500000 -> "1 500 000 GNF"
 ```
 
-## 6. Parcours parent (celui qu'on code)
+### 6. Parcours parent (celui qu'on code)
 
 1. Le parent ouvre l'appli / la page, choisit l'échéance → le serveur crée (ou réutilise) un `paiement` `pending` avec la référence `INS-…-T1`.
 2. Le serveur demande l'URL de paiement au rail (Orange Money par défaut) et redirige.
@@ -927,33 +917,31 @@ String affichage = String.format("%,d GNF", montantGnf).replace(',', '\u202F');
 4. Notification → statut vérifié → `succeeded` → **génération du reçu** et passage de l'échéance à `payee`, dans la même transaction ou via l'outbox.
 5. Le reçu (`REC-2026-000412`) est consultable et imprimable. C'est ce que le parent montre à l'école : il doit porter la référence, le montant, la date, le rail et le statut.
 
-## 7. Ce que la direction attend (à ne pas oublier)
+### 7. Ce que la direction attend (à ne pas oublier)
 
 - **Journal du jour** : total encaissé par rail, nombre de paiements, échecs.
 - **Liste des impayés** : échéances `due` dont la date est dépassée, triées par classe.
 - **Rapprochement** : total base vs total opérateur, écarts signalés (`references/reconciliation.md`).
 - **Relance** : un paiement `pending` de plus de 15 min n'est pas un échec — mais un parent qui a « payé » sans reçu doit être rappelé avec la référence exacte.
 
-## 8. Pièges propres à ce cas d'usage
+### 8. Pièges propres à ce cas d'usage
 
 - Un parent paie **pour deux enfants** en une fois : soit deux paiements séparés (recommandé), soit un paiement multi-échéances — mais alors la contrainte d'unicité ci-dessus doit être repensée. Choisis le simple.
 - Un parent paie **une partie** : `montant_gnf` partiel → échéance `partielle`, jamais `payee`. Le statut `succeeded` du paiement reste vrai, c'est l'échéance qui porte la nuance.
 - Un parent paie **en retard** : ne bloque pas, encaisse, et laisse le retard visible dans la liste des impayés.
 - Un parent **conteste** : le reçu + la référence + la réponse de l'opérateur archivée (`payment_events`) sont la seule preuve recevable. D'où l'interdiction de modifier un log de paiement.
 
----
 
-<!-- ===== FICHIER 11 : references/architecture.md ===== -->
+<!-- fichier 11 : references/architecture.md -->
 
-# [11] references/architecture.md
+## [11] references/architecture.md — Architecture commune : une interface, un adaptateur par agrégateur
 
-# Architecture commune : une interface, un adaptateur par agrégateur
 
 But : changer d'agrégateur (ou en ajouter un deuxième) sans réécrire l'application. Le reste du code ne parle **qu'à l'interface**, jamais directement à FedaPay, KkiaPay ou FeexPay.
 
 Avant de créer quoi que ce soit, lis `adaptation-projet.md` : si le projet a déjà un module de paiement, adapte-le au lieu d'en écrire un second.
 
-## L'interface (à traduire dans le langage du projet)
+### L'interface (à traduire dans le langage du projet)
 
 ```ts
 type Operation = 'payin' | 'refund' | 'payout' | 'card' | 'recurring';
@@ -999,7 +987,7 @@ Règles :
 - Erreurs normalisées : `ErreurReseau`, `DelaiDepasse`, `RefusFournisseur` (avec le message réel), `ReponseInattendue`, `OperationNonPriseEnCharge`. `DelaiDepasse` et `ErreurReseau` ne signifient **jamais** « échec du paiement ».
 - Chaque appel HTTP a un délai maximal explicite et journalise : méthode, URL sans secret, code HTTP, durée, référence. Jamais de clé, de PIN ni de numéro complet dans les logs.
 
-## Organisation des fichiers (exemple, à adapter aux conventions du projet)
+### Organisation des fichiers (exemple, à adapter aux conventions du projet)
 
 ```
 paiements/
@@ -1012,7 +1000,7 @@ paiements/
 
 Plusieurs agrégateurs en même temps (par pays ou par réseau) : le registre choisit l'adaptateur par règle explicite (pays, réseau). Jamais de bascule automatique vers un autre agrégateur après une erreur : on risque un double débit.
 
-## Opérations possibles
+### Opérations possibles
 
 | Opération | À faire seulement si… | Points d'attention |
 | --- | --- | --- |
@@ -1024,17 +1012,15 @@ Plusieurs agrégateurs en même temps (par pays ou par réseau) : le registre ch
 
 Ce que chaque agrégateur propose (et le niveau de confiance) : voir sa fiche. Si une opération demandée n'est pas prise en charge, dis-le clairement à l'utilisateur et propose une alternative (autre agrégateur, opération manuelle depuis le tableau de bord).
 
----
 
-<!-- ===== FICHIER 12 : references/machine-etats.md ===== -->
+<!-- fichier 12 : references/machine-etats.md -->
 
-# [12] references/machine-etats.md
+## [12] references/machine-etats.md — Machine à états des paiements
 
-# Machine à états des paiements
 
 Une seule source de vérité pour les statuts. Toute écriture de statut passe par la fonction de transition (`appliquerTransition`) ; aucun autre code n'écrit la colonne `status`.
 
-## Les 7 statuts
+### Les 7 statuts
 
 | Statut | Sens | Définitif ? |
 | --- | --- | --- |
@@ -1050,7 +1036,7 @@ Correspondance des statuts des agrégateurs : voir chaque fiche (`references/<ag
 
 Les anomalies métier ne sont **pas** des statuts : elles vont dans une colonne `anomalie` (`montant_incorrect`, `devise_incorrecte`, `double_paiement`, `statut_inconnu`…). Le statut décrit ce que dit l'agrégateur ; la commande décrit ce que l'entreprise a livré.
 
-## Transitions autorisées
+### Transitions autorisées
 
 | De \ Vers | processing | succeeded | failed | cancelled | expired | refunded |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -1066,7 +1052,7 @@ Tout le reste est **refusé et journalisé** (par exemple `succeeded → failed`
 
 `pending → succeeded` est autorisé pour le cas où la confirmation arrive avant qu'on ait enregistré `processing`.
 
-## Règles de traitement
+### Règles de traitement
 
 1. **On ne croit pas l'ordre des événements.** À chaque webhook ou passage du rattrapage, on demande le statut **actuel** à l'agrégateur (`getPaymentStatus`) et on applique la transition vers ce statut si elle est autorisée. Un vieil événement « échec » reçu après un succès produit une transition refusée : rien ne change.
 2. **Doublons** : chaque événement est enregistré dans `webhook_events` avec `UNIQUE (provider, event_key)` avant tout traitement. Déjà vu → réponse 200, fin.
@@ -1075,29 +1061,27 @@ Tout le reste est **refusé et journalisé** (par exemple `succeeded → failed`
 5. **Remboursement** : `succeeded → refunded` seulement quand l'agrégateur **confirme** le remboursement. Pendant la demande, garde `succeeded` et suis la demande dans une table `refunds` (sa propre machine : `requested → processing → succeeded | failed`). Remboursement partiel : `refunds` porte le montant ; le paiement reste `succeeded` tant que le total remboursé est inférieur au montant.
 6. **Journal** : chaque transition (acceptée ou refusée) écrit une ligne dans `payment_events` : `payment_id`, `from`, `to`, `source` (`webhook`, `rattrapage`, `api`, `admin`), `provider_status`, date, empreinte de la réponse brute. Ce journal ne se modifie jamais (ajout seulement).
 
-## La commande suit le paiement, pas l'inverse
+### La commande suit le paiement, pas l'inverse
 
 - La commande passe à « payée » **dans la même transaction de base** que la transition vers `succeeded`, avec sa propre garde (`WHERE status <> 'paid'`).
 - Les effets (livraison, e-mail, crédit) partent **après le commit**, une seule fois (outbox ou file d'attente).
 - Un remboursement confirmé met la commande à jour selon la règle métier du projet (annulée, à reprendre…) : demande-la à l'utilisateur si elle n'existe pas.
 
-## Implémentation de référence
+### Implémentation de référence
 
 `outils/test-concurrence-postgres.js` contient la table des transitions, la fonction de transition atomique et les tests (événements en double, désordre, paiement tardif, double paiement, remboursement), exécutés sur un vrai PostgreSQL.
 
----
 
-<!-- ===== FICHIER 13 : references/fiabilite-paiements.md ===== -->
+<!-- fichier 13 : references/fiabilite-paiements.md -->
 
-# [13] references/fiabilite-paiements.md
+## [13] references/fiabilite-paiements.md — Fiabilité des paiements : concurrence, unicité, ordre des opérations
 
-# Fiabilité des paiements : concurrence, unicité, ordre des opérations
 
 Vérifier le paiement auprès de l'agrégateur ne suffit pas. Deux webhooks peuvent arriver en même temps, le webhook et la tâche de rattrapage peuvent traiter le même paiement à la même seconde, un client peut payer deux fois. Cette fiche rend le traitement **sûr en parallèle**. Les statuts et transitions sont définis dans `machine-etats.md`.
 
 Principe : **la base de données arbitre**, pas le code. Jamais « je lis le statut, puis j'écris » sans protection.
 
-## 1. Contraintes en base (obligatoires)
+### 1. Contraintes en base (obligatoires)
 
 | Contrainte | Pourquoi |
 | --- | --- |
@@ -1114,7 +1098,7 @@ Index partiels :
 
 `event_key` = identifiant d'événement de l'agrégateur s'il existe ; sinon `transactionId + type d'événement`, ou l'empreinte SHA-256 du corps brut.
 
-## 2. Ordre impératif d'un traitement (webhook ou rattrapage)
+### 2. Ordre impératif d'un traitement (webhook ou rattrapage)
 
 1. **Hors transaction de base** :
    1. vérifier la signature / le secret du webhook (sinon `401`) ;
@@ -1134,14 +1118,14 @@ Index partiels :
 Avec un ORM, utilise la **mise à jour en masse filtrée** qui renvoie le nombre de lignes (`updateMany`, `->where()->update()`, `.filter().update()`), jamais « charger l'objet, modifier, sauvegarder ».
 Alternative : `SELECT ... FOR UPDATE` sur la ligne, décision, écriture, dans la même transaction.
 
-## 3. Créer un paiement sans doublon
+### 3. Créer un paiement sans doublon
 
 1. L'appli génère une `idempotency_key` (UUID) **par tentative** et l'envoie avec la demande.
 2. Transaction : verrouiller la commande (`SELECT ... FOR UPDATE`), refuser si elle est payée, réutiliser le paiement en cours s'il existe, sinon insérer un paiement `pending`. Clé déjà connue → renvoyer le paiement existant.
 3. **Après le commit**, appeler `createPayment` en donnant notre identifiant interne comme référence marchand quand l'agrégateur le permet (pour retrouver le paiement si on plante entre l'appel et l'enregistrement).
 4. Enregistrer `provider_ref` et passer à `processing`. Refus clair → `failed`. Délai dépassé / erreur réseau → **ne rien conclure** : le paiement reste `pending` et le rattrapage s'en occupe.
 
-## 4. Payouts (versements sortants) : règles en plus
+### 4. Payouts (versements sortants) : règles en plus
 
 Un payout envoyé deux fois, c'est de l'argent perdu. En plus de tout ce qui précède :
 - clé d'idempotence côté agrégateur si l'API en propose une ; sinon, enregistrer en base (et committer) le jeton / la référence de la demande **avant** de l'envoyer ;
@@ -1150,21 +1134,19 @@ Un payout envoyé deux fois, c'est de l'argent perdu. En plus de tout ce qui pr�
 - plafonds par opération et par jour, validation humaine au-delà ;
 - vérifier le solde disponible avant d'envoyer.
 
-## 5. Implémentation de référence testée
+### 5. Implémentation de référence testée
 
 `outils/test-concurrence-postgres.js` implémente `appliquerTransition` et la teste sur un vrai PostgreSQL 16 : doublons en parallèle, désordre, webhook + rattrapage simultanés, paiement tardif, double paiement, montant faux, statut inconnu, remboursement concurrent, double clic. ✅ 10/10 tests passent (exécuté 4 fois le 31/10/2026). Traduis cette logique dans le langage du projet ; ne la réinvente pas.
 
----
 
-<!-- ===== FICHIER 14 : references/reconciliation.md ===== -->
+<!-- fichier 14 : references/reconciliation.md -->
 
-# [14] references/reconciliation.md
+## [14] references/reconciliation.md — Réconciliation et suivi financier
 
-# Réconciliation et suivi financier
 
 Un paiement « réussi » techniquement n'explique pas toujours pourquoi l'argent reçu ne correspond pas aux chiffres : frais différents selon le réseau, paiements tardifs, doubles paiements, remboursements, webhooks perdus, versements de l'agrégateur vers le compte du marchand. La réconciliation compare régulièrement **ta base** et **l'agrégateur**, et signale chaque écart.
 
-## Deux mécanismes différents
+### Deux mécanismes différents
 
 | | Rattrapage (toutes les 2 à 5 min) | Réconciliation (1 fois par jour, ou à la demande) |
 | --- | --- | --- |
@@ -1172,13 +1154,13 @@ Un paiement « réussi » techniquement n'explique pas toujours pourquoi l'argen
 | Périmètre | paiements `pending` / `processing` récents | toutes les transactions d'une période (la veille, J-2 par sécurité) |
 | Action | applique les transitions | **n'écrit pas** de statut tout seul : produit un rapport et des alertes ; les corrections passent par `appliquerTransition` ou par un humain |
 
-## Sources côté agrégateur
+### Sources côté agrégateur
 
 - API de liste / recherche des transactions si elle existe (voir la fiche de l'agrégateur).
 - Sinon : export CSV du tableau de bord, importé par l'utilisateur (prévois une commande ou un écran d'import).
 - Si rien n'est disponible : réconciliation par `getPaymentStatus` sur chaque paiement local de la période (ne détecte pas les paiements inconnus chez nous).
 
-## Écarts à détecter
+### Écarts à détecter
 
 | Écart | Exemple | Gravité |
 | --- | --- | --- |
@@ -1191,43 +1173,41 @@ Un paiement « réussi » techniquement n'explique pas toujours pourquoi l'argen
 | Remboursement sans trace chez nous (ou l'inverse) | remboursé depuis le tableau de bord | moyenne |
 | Total net du jour ≠ versement / solde | net attendu = Σ montants − Σ frais − Σ remboursements | haute |
 
-## Stockage
+### Stockage
 
 - `reconciliation_runs` : période, source (API, export), date, nombre de lignes de chaque côté, totaux brut / frais / net, nombre d'écarts, statut.
 - `reconciliation_items` : une ligne par écart : type, références locale et fournisseur, valeurs des deux côtés, gravité, statut de traitement (`ouvert`, `corrige`, `accepte`), commentaire, qui a traité.
 - Le journal `payment_events` (ajout seulement) permet de rejouer l'histoire d'un paiement.
 
-## Alertes
+### Alertes
 
 - Critique et haute : alerte immédiate (e-mail, Slack, WhatsApp, Telegram… selon ce que le projet utilise déjà).
 - Résumé quotidien : totaux, nombre d'écarts ouverts.
 - Alerte aussi si la réconciliation **ne tourne pas** (pas de run depuis 36 h) ou si le rattrapage voit des paiements bloqués trop longtemps.
 
-## Journalisation sécurisée
+### Journalisation sécurisée
 
 - Jamais : clés, secrets, PIN, OTP, numéro de carte, en-têtes d'authentification.
 - Masquer : numéros de téléphone (`2290166****00`), e-mails partiels.
 - Garder les réponses brutes de l'agrégateur dans une colonne dédiée, avec accès restreint, et une durée de conservation définie.
 - Les logs de paiement ne se modifient pas (ajout seulement) ; les corrections sont des nouvelles lignes.
 
-## À livrer
+### À livrer
 
 - la tâche planifiée de réconciliation (voir le guide du framework pour la planification) ;
 - une commande pour la lancer à la main sur une période ;
 - un rapport lisible (page d'admin existante, export CSV, ou e-mail) ;
 - si le projet n'a pas d'admin : ne construis pas une admin complète, un rapport par e-mail ou un CSV suffit.
 
----
 
-<!-- ===== FICHIER 15 : references/tests.md ===== -->
+<!-- fichier 15 : references/tests.md -->
 
-# [15] references/tests.md
+## [15] references/tests.md — Tests automatiques
 
-# Tests automatiques
 
 Trois niveaux. Les deux premiers tournent sans clés ni réseau : ils doivent passer avant toute mise en production.
 
-## Niveau 1 — Adaptateur (API simulée)
+### Niveau 1 — Adaptateur (API simulée)
 
 Simule l'agrégateur avec l'outil standard du langage :
 - Node : `nock` ou `msw` · PHP / Laravel : `Http::fake()` (client HTTP Laravel) ou Guzzle `MockHandler` · Python : `responses` (requests) ou `respx` (httpx) · Dart / Flutter : `MockClient` de `package:http/testing.dart`.
@@ -1252,7 +1232,7 @@ Cas pour `verifyWebhook` :
 - [ ] corps déjà parsé passé par erreur → doit échouer (preuve que le corps **brut** est utilisé).
 Pour produire des signatures valides : outil de test du SDK (FedaPay : `Webhook.generateTestHeaderString`) ou ton propre calcul à partir de la doc.
 
-## Niveau 2 — Service et base de données (vraie base, sans réseau)
+### Niveau 2 — Service et base de données (vraie base, sans réseau)
 
 Sur le **même moteur** que la production (PostgreSQL, MySQL…) : SQLite en mémoire ne reproduit pas les verrous.
 - [ ] machine à états : chaque transition autorisée passe, chaque transition interdite est refusée et journalisée ;
@@ -1267,7 +1247,7 @@ Sur le **même moteur** que la production (PostgreSQL, MySQL…) : SQLite en mé
 - [ ] crash simulé entre l'appel à l'agrégateur et l'enregistrement → le rattrapage retrouve le paiement.
 Référence exécutable : `outils/test-concurrence-postgres.js`.
 
-## Niveau 3 — Sandbox de l'agrégateur (avec les clés de test de l'utilisateur)
+### Niveau 3 — Sandbox de l'agrégateur (avec les clés de test de l'utilisateur)
 
 À faire par l'utilisateur (ou par toi s'il a mis ses clés de test dans `.env`), avec un tunnel HTTPS pour le webhook :
 - [ ] paiement réussi de bout en bout, webhook reçu, commande payée une fois ;
@@ -1279,17 +1259,15 @@ Référence exécutable : `outils/test-concurrence-postgres.js`.
 
 Ce que le sandbox ne sait pas reproduire (désordre, doublons, pannes, réponses étranges) est couvert par les niveaux 1 et 2. **Un test sandbox n'est pas un test en réel** : le rapport final le dit.
 
----
 
-<!-- ===== FICHIER 16 : references/adaptation-projet.md ===== -->
+<!-- fichier 16 : references/adaptation-projet.md -->
 
-# [16] references/adaptation-projet.md
+## [16] references/adaptation-projet.md — S'adapter au projet existant
 
-# S'adapter au projet existant
 
 Le but est d'ajouter le paiement **dans** le projet, pas de reconstruire le projet autour du paiement. Moins de code, mais du code au bon endroit.
 
-## 1. Détecter avant d'écrire
+### 1. Détecter avant d'écrire
 
 | À détecter | Où regarder |
 | --- | --- |
@@ -1305,7 +1283,7 @@ Le but est d'ajouter le paiement **dans** le projet, pas de reconstruire le proj
 
 Résume ce que tu as trouvé à l'utilisateur en quelques lignes avant de coder.
 
-## 2. Règles d'adaptation
+### 2. Règles d'adaptation
 
 - **Réutilise** : le client HTTP, l'ORM, le système de migrations, la file d'attente, le logger, le système d'alerte, les composants d'interface déjà présents.
 - **Respecte** la structure : si les services sont dans `src/services/`, l'adaptateur y va aussi ; si le projet n'utilise pas de classes, n'en introduis pas.
@@ -1318,7 +1296,7 @@ Résume ce que tu as trouvé à l'utilisateur en quelques lignes avant de coder.
   - plusieurs instances : le rattrapage et la réconciliation ne tournent qu'une fois à la fois (verrou).
 - **Changement minimal mesurable** : à la fin, liste les fichiers créés et modifiés. Si la liste est longue, vérifie que chaque fichier est nécessaire.
 
-## 3. Projet en production
+### 3. Projet en production
 
 Si l'appli est déjà utilisée par de vrais clients :
 - migrations **additives** seulement (ajout de colonnes / tables, pas de suppression ni de renommage) ;
@@ -1326,7 +1304,7 @@ Si l'appli est déjà utilisée par de vrais clients :
 - travaille sur une branche, et propose une pull request plutôt qu'un changement direct sur la branche principale si le projet utilise Git ;
 - ne déploie rien toi-même sans accord explicite.
 
-## 4. Guides par framework
+### 4. Guides par framework
 
 - Express / Node.js → `frameworks/express.md`
 - Next.js → `frameworks/nextjs.md`
@@ -1336,19 +1314,17 @@ Si l'appli est déjà utilisée par de vrais clients :
 
 Autre framework (NestJS, FastAPI, Rails, Spring, Go…) : applique les mêmes principes en cherchant, dans la doc du framework, comment : lire le corps brut d'une requête, exclure une route de la protection CSRF, faire une transaction avec mise à jour filtrée, exécuter du code après le commit, planifier une tâche.
 
----
 
-<!-- ===== FICHIER 17 : references/detection-agregateur.md ===== -->
+<!-- fichier 17 : references/detection-agregateur.md -->
 
-# [17] references/detection-agregateur.md
+## [17] references/detection-agregateur.md — Analyser n'importe quel agrégateur à partir de sa documentation
 
-# Analyser n'importe quel agrégateur à partir de sa documentation
 
 À utiliser pour un agrégateur sans fiche (PayDunya, CinetPay, PawaPay, Flutterwave, Wave…), et pour **revérifier** une fiche existante quand la doc a pu changer.
 
 Règle absolue : **chaque information vient d'une source que tu as ouverte**. Si tu ne la trouves pas, écris « NON TROUVÉ » et dis-le à l'utilisateur. Ne complète jamais un trou avec ce qui « devrait » marcher, ni avec ta mémoire.
 
-## 1. Sources, par ordre de fiabilité
+### 1. Sources, par ordre de fiabilité
 
 1. **Code source du SDK officiel** (npm, Packagist, PyPI, pub.dev, GitHub de l'éditeur) : ce que le SDK envoie vraiment. Installe-le et lis-le : URL de base, en-têtes, corps, chemins.
 2. **Spécification OpenAPI** (`openapi.json`, `swagger.json`) si elle est publiée.
@@ -1358,7 +1334,7 @@ Règle absolue : **chaque information vient d'une source que tu as ouverte**. Si
 
 Si deux sources se contredisent (fréquent : une doc en retard sur le SDK), note les deux et la date, et choisis ce qui sera **testé en sandbox**.
 
-## 2. La fiche d'analyse à remplir
+### 2. La fiche d'analyse à remplir
 
 Pour chaque ligne : la valeur, la source (URL ou fichier du SDK + version) et le niveau (✅ / 🟡 / ❓ / NON TROUVÉ).
 
@@ -1383,24 +1359,22 @@ Pour chaque ligne : la valeur, la source (URL ou fichier du SDK + version) et le
 
 Montre cette fiche à l'utilisateur **avant** de coder et liste clairement les lignes ❓ / NON TROUVÉ.
 
-## 3. Transformer la fiche en adaptateur
+### 3. Transformer la fiche en adaptateur
 
 - Les lignes ✅ et 🟡 deviennent du code (voir `architecture.md`).
 - Une **capacité** ❓ ou NON TROUVÉ (remboursement, payout…) n'est **pas** implémentée : la méthode reste absente et `capacites()` ne la déclare pas.
 - Un **détail** ❓ indispensable au pay-in (par exemple la vérification du webhook) est géré en **échec fermé** : le webhook ne sert que de signal, et la décision vient de l'endpoint de statut. Si l'endpoint de statut lui-même est ❓, **arrête-toi** et demande la doc à l'utilisateur ou au support de l'agrégateur : sans lui, aucune intégration n'est sûre.
 - Les valeurs à confirmer restent dans une seule constante clairement commentée (`// À CONFIRMER : doc v2 section payin, non vérifié`), jamais éparpillées.
 
-## 4. Valider en sandbox
+### 4. Valider en sandbox
 
 Pour chaque ligne ✅ / 🟡 utilisée, prévois un test sandbox (voir `tests.md`). Une valeur 🟡 qui passe le test sandbox devient ✅ dans le rapport final, avec la date.
 
----
 
-<!-- ===== FICHIER 18 : references/verifications.md ===== -->
+<!-- fichier 18 : references/verifications.md -->
 
-# [18] references/verifications.md
+## [18] references/verifications.md — Journal des vérifications — 1er novembre 2026 (Guinée)
 
-# Journal des vérifications — 1er novembre 2026 (Guinée)
 
 Ce fichier dit **ce qui a été ouvert, lu et constaté**, et **ce qui ne l'a pas été**. Une ligne ✅ sans URL ici n'est pas une ligne ✅.
 
@@ -1408,7 +1382,7 @@ Le journal d'origine du pack (31 octobre 2026, Afrique de l'Ouest / FedaPay-Kkia
 
 ---
 
-## ✅ Sources ouvertes aujourd'hui
+### ✅ Sources ouvertes aujourd'hui
 
 | # | URL | Ce qui en a été lu | Sert à |
 | --- | --- | --- | --- |
@@ -1420,7 +1394,7 @@ Le journal d'origine du pack (31 octobre 2026, Afrique de l'Ouest / FedaPay-Kkia
 | 6 | https://www.wave.com/fr/ | Page grand public : **aucune mention d'API** | `guinee/wave-gn.md` |
 | 7 | https://ecobank.com/gn/business-banking/payments-and-collections | Présence Guinée Conakry, **3-D Secure** pour les porteurs, POS cashless, programme fintech — **aucune spécification d'API marchand** | `guinee/ecobank-visa-gn.md` |
 
-## ❌ Sources tentées sans succès
+### ❌ Sources tentées sans succès
 
 | URL | Résultat | Conséquence |
 | --- | --- | --- |
@@ -1431,13 +1405,13 @@ Le journal d'origine du pack (31 octobre 2026, Afrique de l'Ouest / FedaPay-Kkia
 | pied de page MoMo « Open API is available in: … » | rendu en JavaScript, **non capturé** | **couverture Guinée non confirmée** |
 | recherche « Prink paiement Guinée / mobile money / Africa payment » (FR + EN) | **aucun résultat pertinent** | `guinee/prink.md` = **NON TROUVÉ** |
 
-## Ce que ce journal autorise à écrire
+### Ce que ce journal autorise à écrire
 
 ✅ **Orange Money Guinée est disponible en Guinée Conakry**, avec OTP USSD, et les frais de scolarité font partie des cas d'usage cités par l'opérateur.
 
 ❌ **On n'écrit pas** : « MTN MoMo est disponible en Guinée », « Wave est disponible en Guinée pour les marchands », « Ecobank Guinée a une API marchande », « Prink existe ».
 
-## Ce qui reste à confirmer avant la production
+### Ce qui reste à confirmer avant la production
 
 | Sujet | Qui peut confirmer | Bloque quoi |
 | --- | --- | --- |
@@ -1450,31 +1424,29 @@ Le journal d'origine du pack (31 octobre 2026, Afrique de l'Ouest / FedaPay-Kkia
 | Canal d'acceptation carte pour un marchand guinéen | agence Ecobank Guinée, service entreprises | le rail carte |
 | Nature exacte de « Prink » | l'utilisateur (lien, contrat, interlocuteur) | tout |
 
-## Méthode
+### Méthode
 
 Chaque ligne de ce journal vient d'une page effectivement ouverte dans cette session. Aucune information n'a été complétée depuis la mémoire du modèle, ni depuis une page marketing prise pour une spécification technique. Quand une page n'a pas pu être lue (JavaScript, 404, blocage), elle est listée en ❌ et l'information correspondante reste 🟡 ou ❓ dans les fiches.
 
 Règle appliquée, reprise de `detection-agregateur.md` : « Si tu ne la trouves pas, écris NON TROUVÉ et dis-le à l'utilisateur. Ne complète jamais un trou avec ce qui *devrait* marcher. »
 
----
 
-<!-- ===== FICHIER 19 : references/exemples/fedapay.md ===== -->
+<!-- fichier 19 : references/exemples/fedapay.md -->
 
-# [19] references/exemples/fedapay.md
+## [19] references/exemples/fedapay.md — FedaPay — fiche d'intégration (pay-in)
 
-# FedaPay — fiche d'intégration (pay-in)
 
 Doc officielle : https://docs.fedapay.com (index pour IA : https://docs.fedapay.com/llms.txt)
 Légende : ✅ vérifié · 🟡 indicatif · ❓ non confirmé (voir SKILL.md, « Niveaux de confiance »).
 Versions testées le 31/10/2026 : SDK Node `fedapay` **1.2.5**, SDK PHP `fedapay/fedapay-php` **0.4.9**. Si le projet utilise une autre version, relance `outils/test-sdk-fedapay-*.js`.
 
-## Environnements et authentification
+### Environnements et authentification
 
 - ✅ Sandbox `https://sandbox-api.fedapay.com/v1` · Live `https://api.fedapay.com/v1` (constantes du SDK Node).
 - ✅ En-tête `Authorization: Bearer <CLÉ_SECRÈTE>` (requête observée depuis le SDK).
 - 🟡 Clés publique et secrète, en test et en live, dans le tableau de bord.
 
-## Parcours 1 — Page de paiement FedaPay
+### Parcours 1 — Page de paiement FedaPay
 
 ✅ Requêtes vérifiées avec le SDK Node (réponses simulées) :
 ```js
@@ -1496,7 +1468,7 @@ const t = await Transaction.retrieve(transaction.id);        // fetchStatus
 - 🟡 Le champ `customer` et son format viennent de la doc ; vérifie les champs obligatoires dans la référence API « Create a transaction ».
 - 🟡 Au retour sur `callback_url`, **ne crois pas** le statut dans l'URL : revérifie avec `Transaction.retrieve`.
 
-## Parcours 2 — Paiement direct (demande de PIN)
+### Parcours 2 — Paiement direct (demande de PIN)
 
 ✅ Signature réelle du SDK : `sendNowWithToken(mode, token, params)` — le numéro va **dans `params`** :
 ```js
@@ -1507,12 +1479,12 @@ await transaction.sendNowWithToken(mode, token.token, { phone_number: { number: 
 ```
 ❓ **Le nom exact du `mode` par réseau.** La doc a utilisé selon les versions `mtn`, `mtn_open`, `mtn_benin` (MTN Bénin), `moov` / `moov_benin` (Moov Bénin), `sbin` (Celtiis Bénin), `moov_tg`, `mtn_ci`… Ne choisis pas au hasard : lis la page « méthodes de paiement » à jour, ou teste chaque mode en sandbox. Sans confirmation, propose le parcours 1 (page FedaPay), qui n'a pas besoin du mode.
 
-## Statuts
+### Statuts
 
 🟡 D'après la doc : `pending` (expire après 24 h), `approved`, `declined`, `canceled`, `expired`, `refunded`, `transferred`.
 Correspondance vers les 7 statuts : `pending` (côté FedaPay) → `processing` · `approved` / `transferred` → `succeeded` · `declined` / `canceled` → `failed` (ni l'un ni l'autre ne sont définitifs : le client peut réessayer sur la même transaction ; `cancelled` reste réservé aux annulations faites par ton appli) · `expired` → `expired` · `refunded` → `refunded` · autre → `inconnu`.
 
-## Webhook
+### Webhook
 
 - 🟡 Configuré dans le tableau de bord ; un secret par webhook (`wh_sandbox...` en test), **différent en live** ; FedaPay attend une réponse 2xx et réessaie sinon.
 - ✅ En-tête `X-FEDAPAY-SIGNATURE`, format `t=<horodatage>,s=<signature>`. Signature = HMAC-SHA256(secret, `"<t>.<corps brut>"`) en hexadécimal. Tolérance par défaut du SDK : 300 s (anti-rejeu).
@@ -1527,11 +1499,11 @@ Correspondance vers les 7 statuts : `pending` (côté FedaPay) → `processing` 
 - ✅ Python (pas de SDK officiel utilisé) : `outils/fedapay_signature.py`, portage du SDK testé contre des signatures générées par le SDK officiel.
 - 🟡 Le nom des événements (`transaction.approved`, `transaction.canceled`, `transaction.declined`…) et la place de l'identifiant de transaction dans le corps : lis l'exemple de la doc. Dans tous les cas, l'identifiant sert seulement à appeler `Transaction.retrieve` : c'est **cette réponse** qui décide (règles d'or 3 et 4).
 
-## Tests
+### Tests
 
 🟡 Clés et compte sandbox. Les numéros mobile money de test (succès / échec) sont dans la doc « mode test » ; ils peuvent changer, consulte-la.
 
-## Opérations prises en charge
+### Opérations prises en charge
 
 | Opération | Niveau | Détail |
 | --- | --- | --- |
@@ -1542,26 +1514,24 @@ Correspondance vers les 7 statuts : `pending` (côté FedaPay) → `processing` 
 | Récurrent | ❓ | rien de confirmé : ne pas proposer sans doc |
 | Liste des transactions (réconciliation) | 🟡 | « Search your transactions » dans la référence API |
 
----
 
-<!-- ===== FICHIER 20 : references/exemples/feexpay.md ===== -->
+<!-- fichier 20 : references/exemples/feexpay.md -->
 
-# [20] references/exemples/feexpay.md
+## [20] references/exemples/feexpay.md — FeexPay — fiche d'intégration (pay-in)
 
-# FeexPay — fiche d'intégration (pay-in)
 
 Doc officielle : https://docs.feexpay.me (prends la **version v2** : sections payin, statut, webhook, sandbox).
 Légende : ✅ vérifié · 🟡 indicatif · ❓ non confirmé (voir SKILL.md). « 📄 doc v2 » = recopié de la doc officielle v2 (page « API - Payin », transmise le 31/10/2026), non exécuté ici.
 Autre source : **code source du SDK PHP officiel `feexpay/feexpay-php` 3.0.0** (installé et lu le 31/10/2026 ; aucune requête réelle envoyée).
 
-## Généralités
+### Généralités
 
 - ✅ Hôte : `https://api-v2.feexpay.me`. L'ancien hôte `https://api.feexpay.me` n'est plus disponible : un vieux code ou un vieux SDK ne marche plus.
 - ✅ 📄 Authentification : en-tête `Authorization: Bearer <clé API>` (la clé commence par `fp_`). Sans cet en-tête, la requête est refusée. Le SDK ajoute aussi `Accept: application/json` et `Content-Type: application/json`.
 - 📄 Montant : **minimum 100, maximum 2 000 000 XOF** par transaction. Refuse côté serveur, avant l'appel, tout montant hors de ces limites.
 - 📄 Pays couverts par le pay-in : Bénin, Togo, Côte d'Ivoire, Congo Brazzaville, Sénégal, Burkina Faso (réseaux et URL propres à chaque pays : voir la doc v2, onglet du pays).
 
-## Pay-in mobile money — Bénin (📄 doc v2)
+### Pay-in mobile money — Bénin (📄 doc v2)
 
 Une URL par réseau, `POST` :
 
@@ -1600,14 +1570,14 @@ Réponse (📄) : `reference`, `message` (`Accepted`…), `status` (**`PENDING`*
 - `PENDING` veut dire « demande envoyée au client », **pas** « payé ». Enregistre `reference` comme `provider_ref`, passe le paiement à `processing`, puis attends le webhook ou interroge le statut.
 - **Celtiis** : la réponse peut contenir en plus une charge SOAP de l'opérateur (`normal_response`, `response_operator`, `statusCode`). Ne t'en sers pas pour décider : seul l'endpoint de statut fait foi.
 
-## Statut d'une transaction
+### Statut d'une transaction
 
 - ✅ (SDK) `GET https://api-v2.feexpay.me/api/transactions/public/single/status/{reference}`, même en-tête Bearer. Réponse : `amount`, `status`, `reference`, `phoneNumber`.
 - Statuts : `SUCCESSFUL`, `PENDING`, `FAILED` (SDK) ; `TIMEOUT` d'après la doc du SDK Flutter v2 (« statut inconnu après 2 minutes, le paiement peut encore aboutir »).
 - Vérifie aussi que `shop` (s'il est présent) correspond à ta boutique (recommandation du SDK Flutter v2).
 - Correspondance : `SUCCESSFUL` → `succeeded` · `FAILED` → `failed` · `PENDING` / `TIMEOUT` → `processing` · autre → `inconnu`.
 
-## Autre endpoint vu dans le SDK PHP (✅ lu dans le code)
+### Autre endpoint vu dans le SDK PHP (✅ lu dans le code)
 
 Le SDK PHP 3.0.0 n'utilise pas les URL par réseau ci-dessus : il appelle `POST /api/transactions/requesttopay/integration` avec le réseau dans le corps (`reseau`: `MTN`, `MOOV`…) et un champ `reference` (ton identifiant). Ce chemin **attend la validation du client** (le SDK ne met aucun délai maximal).
 Recommandation : en code HTTP direct, utilise les **URL par réseau de la doc v2** (réponse immédiate `PENDING`). Si tu utilises le SDK PHP, mets un délai côté serveur et traite son dépassement comme « en cours » (le rattrapage conclura).
@@ -1620,7 +1590,7 @@ $reference = $fp->paiementLocal($order->amount, $phone, 'MTN', $nom, $email, "pa
 $statut = $reference ? $fp->getPaiementStatus($reference) : $fp->getLastError();
 ```
 
-## Non confirmé (❓) — à lire dans la doc v2 avant de coder
+### Non confirmé (❓) — à lire dans la doc v2 avant de coder
 
 - **Le webhook** : la doc confirme qu'il existe (il renvoie `callback_info`), mais pas ici le format du corps ni la méthode de vérification. Tant que ce n'est pas confirmé : le webhook est un **signal**, ton serveur appelle l'endpoint de statut et décide sur sa réponse (`status`, `amount`, `shop`). Si la page de la doc n'est pas accessible, **demande à l'utilisateur de copier la section « Webhook »** (voir SKILL.md, étape 3).
 - URL et réseaux exacts des autres pays (Togo, Côte d'Ivoire, Congo, Sénégal, Burkina Faso) et de Coris Bénin : onglet de chaque pays dans la doc v2.
@@ -1628,7 +1598,7 @@ $statut = $reference ? $fp->getPaiementStatus($reference) : $fp->getLastError();
 - Numéros et montants de test en sandbox.
 - 🟡 Si l'API répond `ERR_IP_NOT_AUTHORIZED` : ajoute l'IP publique du serveur dans la liste blanche du tableau de bord (section « IP whitelist »).
 
-## Opérations prises en charge
+### Opérations prises en charge
 
 | Opération | Niveau | Détail |
 | --- | --- | --- |
@@ -1639,13 +1609,11 @@ $statut = $reference ? $fp->getPaiementStatus($reference) : $fp->getLastError();
 | Récurrent | ❓ | rien de confirmé |
 | Liste des transactions (réconciliation) | 🟡 | export depuis le tableau de bord ; API de liste ❓ |
 
----
 
-<!-- ===== FICHIER 21 : references/exemples/kkiapay.md ===== -->
+<!-- fichier 21 : references/exemples/kkiapay.md -->
 
-# [21] references/exemples/kkiapay.md
+## [21] references/exemples/kkiapay.md — KkiaPay — fiche d'intégration (pay-in)
 
-# KkiaPay — fiche d'intégration (pay-in)
 
 Doc officielle : https://docs.kkiapay.me (index pour IA : https://docs.kkiapay.me/v1/llms.txt ; chaque page existe en Markdown en ajoutant `.md` à l'URL).
 Légende : ✅ vérifié · 🟡 indicatif · ❓ non confirmé (voir SKILL.md).
@@ -1653,13 +1621,13 @@ Version testée le 31/10/2026 : SDK Node `@kkiapay-org/nodejs-sdk` **1.0.7** (AP
 
 Principe : un **widget** côté client encaisse, puis le **serveur vérifie** la transaction. Sans vérification serveur, n'importe qui peut simuler un succès.
 
-## Les clés
+### Les clés
 
 🟡 Tableau de bord → Développeurs / Clés API : clé **publique**, clé **privée**, **secret**, en sandbox et en live.
 - Clé publique : la seule autorisée dans l'appli ou le navigateur.
 - Clé privée et secret : **serveur uniquement**.
 
-## Côté client : le widget
+### Côté client : le widget
 
 🟡 Web (paquet `kkiapay`, d'après la doc React / Next.js) :
 ```js
@@ -1671,7 +1639,7 @@ addKkiapayListener('success', (response) => { /* envoyer l'identifiant de transa
 ❓ Le champ exact qui transporte notre référence interne (`data` ?) et la forme de `response` : à lire dans la doc du SDK utilisé (web, Flutter, React Native…).
 Le montant du widget vient du client : le serveur compare le montant **vérifié** au prix de la commande.
 
-## Côté serveur : vérifier
+### Côté serveur : vérifier
 
 ✅ Node (import, initialisation, URL, en-têtes et corps testés avec une API simulée) :
 ```js
@@ -1700,7 +1668,7 @@ Correspondance : `SUCCESS` → `succeeded` · `FAILED` → `failed` · transacti
 
 Enregistre `transactionId` comme `provider_ref` avec la contrainte `UNIQUE (provider, provider_ref)` : un même identifiant ne paie jamais deux commandes (c'est la vraie protection contre le rejeu d'un identifiant de transaction).
 
-## Webhook
+### Webhook
 
 - 🟡 Créé dans le tableau de bord : URL, événements, et un **secret de hachage** que tu choisis. KkiaPay attend une réponse 2xx et réessaie jusqu'à 5 fois.
 - 🟡 Corps : `transactionId`, `isPaymentSucces` (orthographe de l'API), `amount`, `fees`, `method`, `performedAt`, `event` (`transaction.success` / `transaction.failed`), `failureCode`, `failureMessage`. Pas d'identifiant d'événement : `event_key` = `transactionId + event`.
@@ -1709,7 +1677,7 @@ Enregistre `transactionId` comme `provider_ref` avec la contrainte `UNIQUE (prov
   2. **dans tous les cas**, appelle `verify(transactionId)` et décide uniquement sur sa réponse.
   Ainsi, même si la méthode de signature réelle est différente, un faux webhook ne peut rien valider.
 
-## Opérations prises en charge
+### Opérations prises en charge
 
 | Opération | Niveau | Détail |
 | --- | --- | --- |
@@ -1720,17 +1688,15 @@ Enregistre `transactionId` comme `provider_ref` avec la contrainte `UNIQUE (prov
 | Récurrent | ❓ | rien de confirmé |
 | Liste des transactions (réconciliation) | ❓ | pas d'API confirmée : export depuis le tableau de bord |
 
----
 
-<!-- ===== FICHIER 22 : frameworks/express.md ===== -->
+<!-- fichier 22 : frameworks/express.md -->
 
-# [22] frameworks/express.md
+## [22] frameworks/express.md — Express / Node.js
 
-# Express / Node.js
 
 Légende : ✅ testé · 🟡 API standard du framework, non exécutée ici.
 
-## Webhook : corps brut
+### Webhook : corps brut
 
 ✅ (testé avec express + SDK fedapay 1.2.5) La route du webhook lit le corps **brut**. Déclare-la **avant** `app.use(express.json())`, ou donne-lui son propre parseur :
 ```js
@@ -1755,46 +1721,44 @@ function egal(a, b) {
 }
 ```
 
-## Base de données
+### Base de données
 
 🟡 Mise à jour atomique selon l'outil du projet :
 - `pg` / Knex : `UPDATE ... WHERE id = $1 AND status = ANY($2)` puis `rowCount` (✅ testé avec `pg` dans `outils/test-concurrence-postgres.js`).
 - Prisma : `const r = await tx.payment.updateMany({ where: { id, status: { in: depuis } }, data: { status: vers } }); if (r.count === 1) {...}` dans `prisma.$transaction(async (tx) => {...})`. Unicité : `@@unique([provider, providerRef])` ; index partiel : migration SQL manuelle. Erreur d'unicité : code `P2002`.
 - Sequelize / TypeORM : `update(..., { where })` renvoie le nombre de lignes ; idem.
 
-## Tâches de fond
+### Tâches de fond
 
 🟡 Réutilise ce qui existe (BullMQ, Agenda, worker maison). Sinon :
 - un seul processus : `node-cron` pour le rattrapage et la réconciliation ;
 - plusieurs instances (PM2 en cluster, plusieurs conteneurs) : un seul planificateur, ou un verrou (`pg_try_advisory_lock`, verrou Redis) pour éviter les exécutions doubles.
 - effets après commit : table outbox lue par le worker.
 
-## Configuration
+### Configuration
 
 `process.env` + `.env` (dotenv) côté serveur seulement. Valide au démarrage que toutes les variables de paiement existent (le projet a peut-être déjà un validateur d'env : réutilise-le).
 
-## Tests
+### Tests
 
 ✅ `nock` pour simuler l'agrégateur (ajoute les hôtes simulés à `NO_PROXY` derrière un proxy) ; `supertest` ou `http` natif pour appeler la route du webhook ; vraie base pour les tests de concurrence.
 
----
 
-<!-- ===== FICHIER 23 : frameworks/nextjs.md ===== -->
+<!-- fichier 23 : frameworks/nextjs.md -->
 
-# [23] frameworks/nextjs.md
+## [23] frameworks/nextjs.md — Next.js
 
-# Next.js
 
 Légende : ✅ testé · 🟡 API standard du framework, non exécutée ici.
 
-## Où mettre le code
+### Où mettre le code
 
 - Le code de paiement (adaptateurs, clés) ne vit **que** côté serveur : Route Handlers (`app/api/.../route.ts`), Server Actions ou routes API (`pages/api`). Marque les modules sensibles avec `import 'server-only'` pour qu'un import accidentel côté client échoue au build.
 - 🟡 Variables d'environnement : les clés secrètes **sans** préfixe `NEXT_PUBLIC_`. Tout ce qui commence par `NEXT_PUBLIC_` est envoyé au navigateur : seule une clé **publique** (widget KkiaPay, par exemple) peut l'avoir.
 - Création du paiement : Route Handler ou Server Action appelée par le client, avec l'utilisateur authentifié.
 - **Webhook : toujours un Route Handler**, jamais une Server Action (une Server Action n'est pas une URL stable appelable par un service externe).
 
-## Webhook : corps brut
+### Webhook : corps brut
 
 🟡 App Router :
 ```ts
@@ -1814,31 +1778,29 @@ export async function POST(req: Request) {
 
 Vérifie que le **middleware** d'authentification (`middleware.ts`) laisse passer `/api/webhooks/*`.
 
-## Hébergement serverless (Vercel, Netlify…)
+### Hébergement serverless (Vercel, Netlify…)
 
 - Pas de tâche qui tourne en continu : le rattrapage et la réconciliation sont des routes protégées (secret dans un en-tête, par exemple `Authorization: Bearer ${CRON_SECRET}`) appelées par le cron de la plateforme (Vercel Cron Jobs) ou un cron externe.
 - Durée maximale d'une fonction : un appel d'agrégateur qui attend la validation du client (FeexPay, par exemple) peut dépasser la limite. Mets un délai côté client plus court que la limite, traite le dépassement comme « en cours », et laisse le rattrapage conclure.
 - Pas d'effet après réponse garanti sans outil dédié : traite le webhook **avant** de répondre (rapidement), ou utilise une file (Inngest, QStash, etc.) si le projet en a une.
 
-## Base de données
+### Base de données
 
 🟡 Prisma / Drizzle : mêmes règles que `express.md` (mise à jour filtrée qui renvoie le nombre de lignes, transaction courte, unicité). En serverless, utilise le pooler de connexions prévu par l'hébergeur de la base.
 
-## Interface
+### Interface
 
 Composant client qui appelle la route de création, puis interroge `GET /api/payments/[id]` toutes les 3 à 5 s (arrêt au démontage et après le délai). La page de retour (`callback_url`) affiche le statut **de ta base**, jamais celui de l'URL.
 
----
 
-<!-- ===== FICHIER 24 : frameworks/laravel.md ===== -->
+<!-- fichier 24 : frameworks/laravel.md -->
 
-# [24] frameworks/laravel.md
+## [24] frameworks/laravel.md — Laravel
 
-# Laravel
 
 Légende : ✅ testé · 🟡 API standard du framework, non exécutée ici.
 
-## Configuration
+### Configuration
 
 🟡 Les clés vont dans `.env`, lues **uniquement** dans `config/services.php` :
 ```php
@@ -1850,7 +1812,7 @@ Légende : ✅ testé · 🟡 API standard du framework, non exécutée ici.
 ```
 Dans le code : `config('services.fedapay.secret')`, jamais `env()` (qui renvoie `null` après `php artisan config:cache`).
 
-## Webhook
+### Webhook
 
 🟡 Route dans `routes/api.php` (pas de protection CSRF sur les routes API). Si elle doit être dans `routes/web.php`, exclus-la du CSRF :
 - Laravel 11 et + : `bootstrap/app.php` → `->withMiddleware(function (Middleware $middleware) { $middleware->validateCsrfTokens(except: ['webhooks/*']); })`
@@ -1876,7 +1838,7 @@ public function __invoke(Request $request)
 ```
 Comparaison de secret (KkiaPay) : `hash_equals($attendu, (string) $request->header('x-kkiapay-secret'))`.
 
-## Base de données
+### Base de données
 
 🟡 Transition atomique :
 ```php
@@ -1891,7 +1853,7 @@ DB::transaction(function () use ($payment, $vers, $depuis) {
 Alternative : `Payment::whereKey($id)->lockForUpdate()->first()` dans la transaction.
 Unicité dans la migration : `$table->unique(['provider', 'provider_ref']);`. Index partiel (PostgreSQL) : `DB::statement("CREATE UNIQUE INDEX ... WHERE status = 'succeeded' AND anomalie IS NULL")`. Erreur d'unicité : `Illuminate\Database\UniqueConstraintViolationException` (Laravel 10.21+), sinon `QueryException`.
 
-## Tâches de fond
+### Tâches de fond
 
 🟡 Jobs dans la file existante (`ShouldQueue`), lancés `->afterCommit()`.
 Planification :
@@ -1899,29 +1861,27 @@ Planification :
 - Laravel 10 et - : `app/Console/Kernel.php`, méthode `schedule()`.
 Et la ligne cron du serveur : `* * * * * php /chemin/artisan schedule:run`. Plusieurs serveurs : `->onOneServer()` (cache partagé requis).
 
-## SDK
+### SDK
 
 ✅ FedaPay : `fedapay/fedapay-php` (webhook testé). ✅ FeexPay : `feexpay/feexpay-php` 3.x (signatures des méthodes lues ; voir `feexpay.md`). KkiaPay : SDK Admin PHP de la doc, ou appel HTTP avec `Http::withHeaders([...])->post(...)` (voir `kkiapay.md`).
 
-## Tests
+### Tests
 
 🟡 `Http::fake([...])` pour simuler l'agrégateur, `Http::preventStrayRequests()` pour interdire tout appel réel, `$this->postJson()` / `$this->call()` avec un corps brut pour le webhook, base PostgreSQL / MySQL de test pour la concurrence.
 
----
 
-<!-- ===== FICHIER 25 : frameworks/django.md ===== -->
+<!-- fichier 25 : frameworks/django.md -->
 
-# [25] frameworks/django.md
+## [25] frameworks/django.md — Django
 
-# Django
 
 Légende : ✅ testé · 🟡 API standard du framework, non exécutée ici.
 
-## Configuration
+### Configuration
 
 🟡 Clés lues depuis l'environnement dans `settings.py` (`os.environ[...]`, ou `django-environ` si le projet l'utilise déjà). Jamais de clé en dur ni dans un fichier versionné.
 
-## Webhook
+### Webhook
 
 ✅ Vue testée (Django 6.1, client de test avec CSRF actif, signature générée par le SDK officiel FedaPay) :
 ```python
@@ -1944,7 +1904,7 @@ def webhook_fedapay(request):
 Comparaison de secret (KkiaPay) : `hmac.compare_digest(attendu, request.headers.get("X-Kkiapay-Secret", ""))`.
 Django REST Framework : une `APIView` avec `authentication_classes = []`, `permission_classes = [AllowAny]`, et lecture de `request.body` avant tout accès à `request.data`.
 
-## Base de données
+### Base de données
 
 ✅ Mise à jour filtrée (testée avec Django 6.1 : renvoie 1, puis 0 au second passage) :
 ```python
@@ -1964,27 +1924,25 @@ models.UniqueConstraint(fields=["order"], condition=Q(status="succeeded", anomal
 ```
 Les contraintes **conditionnelles** sont gérées par PostgreSQL et SQLite, **pas par MySQL** (Django les ignore) : sur MySQL, utilise la colonne `success_order_id` unique (voir `fiabilite-paiements.md`). Erreur d'unicité : `IntegrityError`.
 
-## Tâches de fond
+### Tâches de fond
 
 🟡 Réutilise Celery / RQ / Django-Q si présent (Celery beat pour la planification). Sinon : une commande de gestion (`python manage.py rattraper_paiements`) lancée par cron toutes les 5 minutes, et une autre pour la réconciliation quotidienne.
 
-## Tests
+### Tests
 
 🟡 `responses` (requests) ou `respx` (httpx) pour simuler l'agrégateur ; `Client().post(url, data=corps, content_type="application/json", HTTP_X_FEDAPAY_SIGNATURE=entete)` pour le webhook ; `TransactionTestCase` + PostgreSQL pour la concurrence (les `TestCase` classiques enveloppent tout dans une transaction et masquent les problèmes de verrou).
 
----
 
-<!-- ===== FICHIER 26 : frameworks/flutter.md ===== -->
+<!-- fichier 26 : frameworks/flutter.md -->
 
-# [26] frameworks/flutter.md
+## [26] frameworks/flutter.md — Flutter (appli mobile)
 
-# Flutter (appli mobile)
 
 Légende : ✅ testé · 🟡 API standard, non exécutée ici.
 
 L'appli mobile **ne parle jamais directement à l'API de l'agrégateur avec une clé secrète**. Elle parle à **ton serveur** (Express, Next.js, Laravel, Django… voir les autres guides), qui parle à l'agrégateur.
 
-## Ce qui est interdit dans l'appli
+### Ce qui est interdit dans l'appli
 
 - clé secrète, clé privée, secret de webhook ;
 - même « cachés » : un fichier `.env` chargé par `flutter_dotenv` est **inclus dans l'appli** ; une valeur passée avec `--dart-define` est **lisible** dans le binaire ; l'obfuscation ne protège pas un secret ;
@@ -1992,7 +1950,7 @@ L'appli mobile **ne parle jamais directement à l'API de l'agrégateur avec une 
 
 Autorisé : l'URL de ton serveur, et une clé **publique** si le SDK de l'agrégateur l'exige (widget KkiaPay, SDK FeexPay Flutter…).
 
-## Parcours
+### Parcours
 
 🟡 Création :
 ```dart
@@ -2025,27 +1983,25 @@ void dispose() { _minuteur?.cancel(); super.dispose(); }
 - Quand l'appli revient au premier plan (`AppLifecycleState.resumed`), revérifie le statut une fois.
 - Bouton « Payer » désactivé pendant la requête (double clic).
 
-## SDK d'agrégateur dans Flutter
+### SDK d'agrégateur dans Flutter
 
 Si l'agrégateur fournit un widget Flutter (KkiaPay, `feexpay_flutter_v2`…), son callback de succès sert **seulement** à prévenir ton serveur (envoyer la référence). Le serveur vérifie avec `getPaymentStatus` avant toute livraison. La doc du SDK FeexPay v2 le dit elle-même : le résultat reçu dans l'appli peut être falsifié.
 
-## États à afficher
+### États à afficher
 
 En attente · Réussi · Échoué (avec « Réessayer », qui crée une **nouvelle** tentative) · Délai dépassé · Erreur réseau (« Vérifie ta connexion », sans conclure sur le paiement).
 
-## Tests
+### Tests
 
 🟡 `MockClient` (`package:http/testing.dart`) pour simuler ton serveur : réponses `processing` puis `succeeded`, erreur réseau, délai dépassé, réponse inattendue.
 
----
 
-<!-- ===== FICHIER 27 : outils/README.md ===== -->
+<!-- fichier 27 : outils/README.md -->
 
-# [27] outils/README.md
+## [27] outils/README.md — `outils/` — implémentations de référence
 
-# `outils/` — implémentations de référence
 
-## État honnête de ce dossier
+### État honnête de ce dossier
 
 Le pack d'origine annonçait trois implémentations de référence **testées** (PostgreSQL 16, 10 scénarios de concurrence, 10/10) :
 
@@ -2059,15 +2015,15 @@ Conséquence, à assumer dans le rapport final :
 
 > **Les niveaux 1 et 2 de `references/tests.md` ne peuvent pas être présentés comme « déjà testés ».** Ils doivent être écrits puis exécutés sur le projet de l'utilisateur, et le rapport doit le dire.
 
-## Ce qui est présent ici
+### Ce qui est présent ici
 
 | Fichier | Rôle | Niveau |
 | --- | --- | --- |
 | `schema-paiement.sql` | schéma PostgreSQL : statuts, contraintes d'unicité, index partiels, journal d'événements, table de webhooks, outbox, réconciliation | 🟡 écrit et relu, **non exécuté** (pas d'instance PostgreSQL dans la session) |
 
-## Ce qu'il faut écrire avant de dire « testé »
+### Ce qu'il faut écrire avant de dire « testé »
 
-### Niveau 1 — API simulée (aucune base, aucun réseau)
+#### Niveau 1 — API simulée (aucune base, aucun réseau)
 
 Un faux serveur HTTP qui rejoue :
 
@@ -2082,7 +2038,7 @@ Un faux serveur HTTP qui rejoue :
 9. un webhook arrivé **avant** la réponse de création ;
 10. un montant incohérent → refus.
 
-### Niveau 2 — vraie base
+#### Niveau 2 — vraie base
 
 Sur PostgreSQL, avec `schema-paiement.sql` :
 
@@ -2097,17 +2053,16 @@ Sur PostgreSQL, avec `schema-paiement.sql` :
 9. transaction annulée → aucun effet de bord visible ;
 10. 50 paiements concurrents sur 50 commandes → exactement 50 lignes, aucun blocage.
 
-### Niveau 3 — sandbox / réel
+#### Niveau 3 — sandbox / réel
 
 Nécessite les clés de l'utilisateur et, en Guinée, très probablement un **premier paiement réel de petit montant** (Orange ne fournit pas toujours de sandbox sur ce marché — ❓). C'est l'utilisateur qui l'exécute et le confirme.
 
-## Rappel
+### Rappel
 
 Ne jamais écrire « testé » pour du code seulement écrit. Voir `../SKILL.md`, règle d'or 7.
 
----
 
-# Annexe - schema SQL de reference (outils/schema-paiement.sql)
+## [annexe] outils/schema-paiement.sql
 
 ```sql
 -- Schema de reference : machine a etats et garde-fous (PostgreSQL 14+)
